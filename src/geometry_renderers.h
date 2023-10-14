@@ -148,7 +148,7 @@ namespace yzh {
 
 				const unsigned int X_SEGMENTS = x_segments;
 				const unsigned int Y_SEGMENTS = y_segments;
-				const float PI = 3.14159265359;
+				const float PI = 3.14159265359f;
 				float radius = 2.0f;
 				for (unsigned int y = 0; y <= Y_SEGMENTS; ++y) {
 					for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {

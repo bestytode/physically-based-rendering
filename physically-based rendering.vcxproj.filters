@@ -203,6 +203,7 @@
   <ItemGroup>
     <None Include="res\models\backpack\backpack.mtl" />
     <None Include="res\models\nanosuit\nanosuit.mtl" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\models\backpack\source_attribution.txt" />

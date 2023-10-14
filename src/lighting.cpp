@@ -1,6 +1,5 @@
 #include <iostream>
 #include <stdexcept>
-#include <random>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -28,12 +27,12 @@ int SCR_HEIGHT = 1080;
 
 // Camera settings
 Camera camera(0.0f, 0.0f, 5.0f);
-float lastX = (float)SCR_WIDTH / 2.0;
-float lastY = (float)SCR_HEIGHT / 2.0;
+float lastX = (float)SCR_WIDTH / 2.0f;
+float lastY = (float)SCR_HEIGHT / 2.0f;
 float plane_near = 0.1f;
 float plane_far = 100.0f;
-bool mouseButtonPressed = true; // only move the camera when mouse is being pressed
-bool enableCameraMovement = true;
+bool mouseButtonPressed = true; // Only move the camera when left mouse is being pressed
+bool enableCameraMovement = true; // Interact through ImGui UI panal
 
 // Timing
 float deltaTime = 0.0f;
@@ -85,12 +84,12 @@ int main()
 
 	// Imgui settings
     // --------------
-	bool firstTime = true;
+	bool ImGUIFirstTime = true;
 	double cursor_x, cursor_y;
 	unsigned char pixel[4];
 	while (!glfwWindowShouldClose(window)) {
 		// Per-frame logic
-		float currentFrame = glfwGetTime();
+		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
@@ -108,16 +107,27 @@ int main()
 		ImGui::NewFrame();
 
 		// The first UI panal
-		if (firstTime) {
+		if (ImGUIFirstTime) {
 			ImGui::SetNextWindowSize(ImVec2(500, 250));
 			ImGui::SetNextWindowPos(ImVec2(50, 50));
 		}
 		ImGui::Begin("hnzz");
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-		glfwGetCursorPos(window, &cursor_x, &cursor_y); // Retrieve and display the cursor position and the RGBA color of the pixel under the cursor
-		glReadPixels(cursor_x, SCR_HEIGHT - cursor_y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+		// Retrieve and display the cursor position and the RGBA color of the pixel under the cursor
+		glfwGetCursorPos(window, &cursor_x, &cursor_y); 
+		glReadPixels((int)cursor_x, (int)(SCR_HEIGHT - cursor_y), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
 		ImGui::Text("Cursor position: (%.2f, %.2f)", cursor_x, cursor_y);
 		ImGui::Text("RGBA: (%d, %d, %d, %d)", pixel[0], pixel[1], pixel[2], pixel[3]);
+		ImGui::End();
+
+		// The second UI panal
+		if (ImGUIFirstTime) {
+			ImGui::SetNextWindowSize(ImVec2(500, 250));
+			ImGui::SetNextWindowPos(ImVec2(50, 350));
+			ImGUIFirstTime = false;
+		}
+		ImGui::Begin("hnzz^2");
+		ImGui::Checkbox("Enable camera movement", &enableCameraMovement);
 		ImGui::End();
 
 		// ImGui Rendering

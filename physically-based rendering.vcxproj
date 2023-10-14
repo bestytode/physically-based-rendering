@@ -217,6 +217,7 @@
     <Image Include="res\models\nanosuit\leg_showroom_spec.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.md" />
     <None Include="res\models\backpack\backpack.mtl" />
     <None Include="res\models\nanosuit\nanosuit.mtl" />
   </ItemGroup>
