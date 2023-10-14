@@ -14,7 +14,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-// Function declarations (callback functions)
+// Callback function declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -22,16 +22,16 @@ void ProcessInput(GLFWwindow* window);
 unsigned int LoadTexture(const std::string& path);
 
 // Scene settings
-int SCR_WIDTH = 1920;
-int SCR_HEIGHT = 1080;
+int SCR_WIDTH = 1920;  // Screen width
+int SCR_HEIGHT = 1080; // Screen height
 
 // Camera settings
 Camera camera(0.0f, 0.0f, 5.0f);
-float lastX = (float)SCR_WIDTH / 2.0f;
-float lastY = (float)SCR_HEIGHT / 2.0f;
 float plane_near = 0.1f;
 float plane_far = 100.0f;
-bool mouseButtonPressed = true; // Only move the camera when left mouse is being pressed
+float lastX = (float)SCR_WIDTH / 2.0f;
+float lastY = (float)SCR_HEIGHT / 2.0f;
+bool mouseButtonPressed = true; // Only move the camera when pressing left mouse
 bool enableCameraMovement = true; // Interact through ImGui UI panal
 
 // Timing
@@ -118,6 +118,7 @@ int main()
 		glReadPixels((int)cursor_x, (int)(SCR_HEIGHT - cursor_y), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
 		ImGui::Text("Cursor position: (%.2f, %.2f)", cursor_x, cursor_y);
 		ImGui::Text("RGBA: (%d, %d, %d, %d)", pixel[0], pixel[1], pixel[2], pixel[3]);
+		ImGui::Checkbox("Enable camera movement", &enableCameraMovement);
 		ImGui::End();
 
 		// The second UI panal
@@ -126,8 +127,10 @@ int main()
 			ImGui::SetNextWindowPos(ImVec2(50, 350));
 			ImGUIFirstTime = false;
 		}
-		ImGui::Begin("hnzz^2");
-		ImGui::Checkbox("Enable camera movement", &enableCameraMovement);
+		ImGui::Begin("PBR");
+		// debug pbr parameters here
+		// -------------------------
+		// TODO
 		ImGui::End();
 
 		// ImGui Rendering

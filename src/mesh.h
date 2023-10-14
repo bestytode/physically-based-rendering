@@ -141,7 +141,7 @@ void Mesh::Render(Shader& shader, const std::vector<std::string>& textureTypesTo
 	size_t diffuseNr = 1, specularNr = 1, normalNr = 1, heightNr = 1;
 
 	for (int i = 0; i < textures.size(); i++) {
-		glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
+		glActiveTexture(GL_TEXTURE0 + i);
 		// Get texture number£¨N in diffuse_textureN £©
 		std::string name = textures[i].type;
 
