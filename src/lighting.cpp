@@ -40,12 +40,12 @@ float lastFrame = 0.0f;
 
 int main()
 {
-	Timer timer;
-	timer.start();
+	Timer timer; // Timer that calculates init operation time
+	timer.start(); // Timer starts
 
 	// glfw & glew configs
 	// -------------------
-	GLFWwindow* window = nullptr;
+	GLFWwindow* window = nullptr; // GLFW window
 	try {
 		if (!glfwInit())
 			throw std::runtime_error("failed to init glfw");
@@ -61,9 +61,9 @@ int main()
 		if (glewInit() != GLEW_OK)
 			throw std::runtime_error("failed to init glew");
 
-		// OpenGL global status settings here
+		// OpenGL global settings
+		// ----------------------
 		glEnable(GL_DEPTH_TEST);
-		//glEnable(GL_CULL_FACE);
 	}
 	catch (const std::runtime_error& e) {
 		std::cerr << e.what() << std::endl;
@@ -80,7 +80,7 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
-	timer.stop();
+	timer.stop(); // Timer stops
 
 	// Imgui settings
     // --------------
@@ -100,8 +100,7 @@ int main()
 		// Process input
 		ProcessInput(window);
 
-		// ImGui code here
-        // ---------------
+		// ImGui new frame 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -142,7 +141,7 @@ int main()
 		glfwPollEvents();
 	}
 
-	// Optional: release all the resources of OpenGL (VAO, VBO, etc.)
+	// Release all the resources of OpenGL (VAO, VBO, etc.)
 	glfwTerminate();
 
 	// ImGui Cleanup
