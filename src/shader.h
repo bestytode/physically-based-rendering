@@ -110,6 +110,20 @@ public:
 		glUniformMatrix4fv(location, 1, GL_FALSE, &_mat[0][0]);
 	}
 
+	void SetMat3(const std::string& _name, const glm::mat3& _mat)
+	{
+		GLint location = glGetUniformLocation(m_rendererID, _name.c_str());
+
+#ifdef _DEBUG
+		if (location == -1 && warnedUniforms.find(_name) == warnedUniforms.end()) {
+			std::cerr << "Warning: Uniform '" << _name << "' not found or shader program not linked.\n";
+			warnedUniforms.insert(_name);
+		}
+#endif
+
+		glUniformMatrix3fv(location, 1, GL_FALSE, &_mat[0][0]);
+	}
+
 	void SetFloat(const std::string& _name, float _value)
 	{
 		GLint location = glGetUniformLocation(m_rendererID, _name.c_str());
