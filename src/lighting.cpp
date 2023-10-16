@@ -80,6 +80,7 @@ int main()
 
 	// build and compile shader(s)
 	Shader shader("res/shaders/pbr_lighting.vs", "res/shaders/pbr_lighting.fs");
+	Shader shaderLight("res/shaders/pbr_debug_light.vs", "res/shaders/pbr_debug_light.fs");
 
 	// lighting infos
 	// --------------
@@ -112,8 +113,8 @@ int main()
 	bool enablePBR = true;
 	glm::vec3 albedo(0.5f, 0.0f, 0.0f);
 	float ao = 1.0f;
-	float metallic;
-	float roughness;
+	float metallic = 0.5f;
+	float roughness = 0.5f;
 
 	// Set VAO for geometry shape for later use
 	yzh::Quad quad;
@@ -146,7 +147,7 @@ int main()
 		shader.SetVec3("albedo", albedo);
 		shader.SetFloat("ao", ao);
 		shader.SetVec3("viewPos", camera.position);
-		shader.SetInt("enbalePBR", enablePBR);
+		//shader.SetInt("enbalePBR", enablePBR);
 		
 		if (lightColors.size() == lightPositions.size()) {
 			for (int i = 0; i < lightPositions.size(); i++) {
@@ -158,28 +159,45 @@ int main()
 		}
 		// render rows * column number of spheres with varying metallic/roughness values
 		// -----------------------------------------------------------------------------
-		for (int row = 0; row < nrRows; row++) {
-			shader.SetFloat("metallic", (float)row / (float)nrRows);
-			for (int col = 0; col < nrColumns; col++) {
-				// Clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit on direct lighting.
-				shader.SetFloat("roughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
-				model = glm::mat4(1.0f);
-				model = glm::translate(model, glm::vec3(
-					(col - (nrColumns / 2)) * spacing,
-					(row - (nrRows / 2)) * spacing,
-					0.0f
-				));
-				model = glm::scale(model, glm::vec3(0.5f));
-				shader.SetMat4("model", model);
-				shader.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+		//for (int row = 0; row < nrRows; row++) {
+		//	shader.SetFloat("metallic", (float)row / (float)nrRows);
+		//	for (int col = 0; col < nrColumns; col++) {
+		//		// Clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit on direct lighting.
+		//		shader.SetFloat("roughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
+		//		model = glm::mat4(1.0f);
+		//		model = glm::translate(model, glm::vec3(
+		//			(col - (nrColumns / 2)) * spacing,
+		//			(row - (nrRows / 2)) * spacing,
+		//			0.0f
+		//		));
+		//		model = glm::scale(model, glm::vec3(0.5f));
+		//		shader.SetMat4("model", model);
+		//		shader.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 
-				sphere.Render();
-			}
-		}
+		//		sphere.Render();
+		//	}
+		//}
+
+		// Render a sphere, adjust metallic and roughness in UI panal
+		shader.SetFloat("metallic", metallic);
+		shader.SetFloat("roughness", roughness);
+		shader.SetMat4("model", model);
+		shader.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+		sphere.Render();
 
 		// render light source 
 		// -------------------
-		
+		shaderLight.Bind();
+		shaderLight.SetMat4("projection", projection);
+		shaderLight.SetMat4("view", view);
+		for (int i = 0; i < 4; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, lightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.5f));
+			shaderLight.SetMat4("model", model);
+			sphere.Render();
+		}
+
 		// ImGui new frame 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -208,8 +226,8 @@ int main()
 		}
 		ImGui::Begin("PBR");
 		ImGui::SliderFloat3("albedo", &albedo[0], 0.0f, 1.0f);
-		//ImGui::SliderFloat("metallic", &metallic, 0.0f, 1.0f); 
-		//ImGui::SliderFloat("roughness", &roughness, 0.0f, 1.0f);
+		ImGui::SliderFloat("metallic", &metallic, 0.0f, 1.0f); 
+		ImGui::SliderFloat("roughness", &roughness, 0.0f, 1.0f);
 		ImGui::End();
 
 		// ImGui Rendering

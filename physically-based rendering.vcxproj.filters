@@ -206,6 +206,8 @@
     <None Include="README.md" />
     <None Include="res\shaders\pbr_lighting.vs" />
     <None Include="res\shaders\pbr_lighting.fs" />
+    <None Include="res\shaders\pbr_debug_light.vs" />
+    <None Include="res\shaders\pbr_debug_light.fs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\models\backpack\source_attribution.txt" />
