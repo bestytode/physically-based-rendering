@@ -220,6 +220,8 @@
     <None Include="README.md" />
     <None Include="res\models\backpack\backpack.mtl" />
     <None Include="res\models\nanosuit\nanosuit.mtl" />
+    <None Include="res\shaders\pbr_lighting.fs" />
+    <None Include="res\shaders\pbr_lighting.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\models\backpack\source_attribution.txt" />

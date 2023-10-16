@@ -26,17 +26,15 @@ int SCR_WIDTH = 1920;  // Screen width
 int SCR_HEIGHT = 1080; // Screen height
 
 // Camera settings
-Camera camera(0.0f, 0.0f, 5.0f);
-float plane_near = 0.1f;
-float plane_far = 100.0f;
+Camera camera(0.0f, 0.0f, 5.0f); // By default we set plane_near to 0.1f and plane_far to 100.0f
 float lastX = (float)SCR_WIDTH / 2.0f;
 float lastY = (float)SCR_HEIGHT / 2.0f;
-bool mouseButtonPressed = true; // Only move the camera when pressing left mouse
-bool enableCameraMovement = true; // Interact through ImGui UI panal
+bool mouseButtonPressed = true; // Move the camera only when pressing left mouse
+bool enableCameraMovement = true; // Lock or unlock camera movement with UI panal
 
 // Timing
 float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+float lastFrameTimePoint = 0.0f;
 
 int main()
 {
@@ -80,26 +78,82 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
-	timer.stop(); // Timer stops
+	// build and compile shader(s)
+	Shader shader("res/shaders/pbr_lighting.vs", "res/shaders/pbr_lighting.fs");
+
+	// lighting infos
+	// --------------
+	glm::vec3 lightPositions[] = {
+		glm::vec3(-10.0f,  10.0f, 10.0f),
+		glm::vec3(10.0f,  10.0f, 10.0f),
+		glm::vec3(-10.0f, -10.0f, 10.0f),
+		glm::vec3(10.0f, -10.0f, 10.0f),
+	};
+
+	glm::vec3 lightColors[] = {
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f)
+	};
+	int nrRows = 7;
+	int nrColumns = 7;
+	float spacing = 2.5f;
 
 	// Imgui settings
     // --------------
 	bool ImGUIFirstTime = true;
 	double cursor_x, cursor_y;
 	unsigned char pixel[4];
+
+	// PBR settings & parameters
+	// -------------------------
+	// TODO: material.h 
+	bool enablePBR = true;
+	glm::vec3 albedo(0.5f, 0.0f, 0.0f);
+	float ao = 1.0f;
+	float metallic;
+	float roughness;
+
+	// Set VAO for geometry shape for later use
+	yzh::Quad quad;
+	yzh::Cube cube;
+	yzh::Sphere sphere(64, 64);
+
+	timer.stop(); // Timer stops
+
 	while (!glfwWindowShouldClose(window)) {
 		// Per-frame logic
-		float currentFrame = (float)glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		float currentFrameTimePoint = (float)glfwGetTime();
+		deltaTime = currentFrameTimePoint - lastFrameTimePoint;
+		lastFrameTimePoint = currentFrameTimePoint;
+
+		// Process input
+		ProcessInput(window);
 
 		// Render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Process input
-		ProcessInput(window);
+		// PBR rendering
+		// -------------
+		shader.Bind();
+		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 model = glm::mat4(1.0f);
+		shader.SetMat4("projection", projection);
+		shader.SetMat4("view", view);
+		shader.SetVec3("albedo", albedo);
+		shader.SetFloat("ao", ao);
+		shader.SetVec3("viewPos", camera.position);
 
+		// render rows * column number of spheres with varying metallic/roughness values
+		// -----------------------------------------------------------------------------
+
+
+		// render light source 
+		// -------------------
+		
 		// ImGui new frame 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -127,9 +181,9 @@ int main()
 			ImGUIFirstTime = false;
 		}
 		ImGui::Begin("PBR");
-		// debug pbr parameters here
-		// -------------------------
-		// TODO
+		ImGui::SliderFloat3("albedo", &albedo[0], 0.0f, 1.0f);
+		ImGui::SliderFloat("metallic", &metallic, 0.0f, 1.0f);
+		ImGui::SliderFloat("roughness", &roughness, 0.0f, 1.0f);
 		ImGui::End();
 
 		// ImGui Rendering
