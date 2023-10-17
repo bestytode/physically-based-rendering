@@ -86,7 +86,7 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lighting.cpp">
+    <ClCompile Include="src\lighting_textured.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -197,6 +197,21 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\models\nanosuit\leg_showroom_spec.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\pbr\rusted_iron\albedo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\pbr\rusted_iron\ao.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\pbr\rusted_iron\metallic.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\pbr\rusted_iron\normal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\pbr\rusted_iron\roughness.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

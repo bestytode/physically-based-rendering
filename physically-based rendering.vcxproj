@@ -176,7 +176,7 @@
     <ClCompile Include="src\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\lighting.cpp" />
+    <ClCompile Include="src\lighting_textured.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\models\backpack\ao.jpg" />
@@ -215,6 +215,11 @@
     <Image Include="res\models\nanosuit\leg_showroom_ddn.png" />
     <Image Include="res\models\nanosuit\leg_showroom_refl.png" />
     <Image Include="res\models\nanosuit\leg_showroom_spec.png" />
+    <Image Include="res\textures\pbr\rusted_iron\albedo.png" />
+    <Image Include="res\textures\pbr\rusted_iron\ao.png" />
+    <Image Include="res\textures\pbr\rusted_iron\metallic.png" />
+    <Image Include="res\textures\pbr\rusted_iron\normal.png" />
+    <Image Include="res\textures\pbr\rusted_iron\roughness.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

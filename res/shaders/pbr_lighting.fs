@@ -6,15 +6,41 @@ in vec2 TexCoords;
 in vec3 Normal;
 
 uniform vec3 viewPos;
-uniform vec3 albedo;
-uniform float metallic;
-uniform float roughness;
-uniform float ao;
 
-uniform vec3 lightPositions[4];
-uniform vec3 lightColors[4];
-uniform bool enbalePBR;
+// material parameters
+uniform sampler2D albedoMap;
+uniform sampler2D normalMap;
+uniform sampler2D metallicMap;
+uniform sampler2D roughnessMap;
+uniform sampler2D aoMap;
+
+// lighting infos
+uniform vec3 lightPosition;
+uniform vec3 lightColor;
+
+// Scaling factors
+uniform float roughnessScale;
+uniform float metallicScale;
+uniform vec3 albedoScale;
+
 const float PI = 3.1415926;
+
+vec3 getNormalFromMap()
+{
+    vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
+
+    vec3 Q1  = dFdx(WorldPos);
+    vec3 Q2  = dFdy(WorldPos);
+    vec2 st1 = dFdx(TexCoords);
+    vec2 st2 = dFdy(TexCoords);
+
+    vec3 N   = normalize(Normal);
+    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+    vec3 B  = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+}
 
 // Calculating how the microfacets are oriented relative to the normal N and H
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -65,23 +91,30 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 void main()
 {
+	vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2)) * albedoScale;
+    float metallic  = texture(metallicMap, TexCoords).r * metallicScale;
+    float roughness = texture(roughnessMap, TexCoords).r * roughnessScale;
+    float ao        = texture(aoMap, TexCoords).r;
+
 	// Both N & V is in world space
-	vec3 N = normalize(Normal); // Normal
+	vec3 N = getNormalFromMap(); // Normal
 	vec3 V = normalize(viewPos - WorldPos); // View direction
 
 	vec3 F0 = vec3(0.04f); // For non-metal material, we simply use vec3(0.04f)
 	F0 = mix(F0, albedo, metallic); // For metal material, we interpolate F0 to albedo based on the metallic coefficient
 
 	vec3 Lo = vec3(0.0f);
-	for(int i = 0; i < 4; i++) {
+
+	// we only have one light source here
+	for(int i = 0; i < 1; i++) {
 		// Calculate per-light radiance
-		vec3 L = normalize(lightPositions[i] - WorldPos); // Light direction
+		vec3 L = normalize(lightPosition - WorldPos); // Light direction
 		vec3 H = normalize(V + L); // HalfwayVector
-		float distance = length(lightPositions[i] - WorldPos);
+		float distance = length(lightPosition - WorldPos);
 		float attenuation = 1.0f / (distance * distance); // Simple attenuation, may use linear and quadratic coefficient later
-		vec3 incomingRadiance = lightColors[i] * attenuation;
+		vec3 incomingRadiance = lightColor * attenuation;
 		float NdotL = max(dot(N, L), 0.0);
-        vec3 scaledIncomingRadiance = incomingRadiance * NdotL;
+        vec3 scaledIncomingRadiance = incomingRadiance * NdotL; 
 
 		// Cook-Torrance specular BRDF calculation
 		float NDF = DistributionGGX(N, H, roughness);
