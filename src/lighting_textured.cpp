@@ -204,6 +204,7 @@ int main()
 		// Retrieve and display the cursor position and the RGBA color of the pixel under the cursor
 		glfwGetCursorPos(window, &cursor_x, &cursor_y); 
 		glReadPixels((int)cursor_x, (int)(SCR_HEIGHT - cursor_y), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+
 		ImGui::Text("Cursor position: (%.2f, %.2f)", cursor_x, cursor_y);
 		ImGui::Text("RGBA: (%d, %d, %d, %d)", pixel[0], pixel[1], pixel[2], pixel[3]);
 		ImGui::Checkbox("Enable camera movement", &enableCameraMovement);
@@ -221,28 +222,20 @@ int main()
 		ImGuiStyle& style = ImGui::GetStyle();
 		float originalFramePaddingX = style.FramePadding.x;
 		style.FramePadding.x = 4;
-
-		// Using columns
 		ImGui::Columns(2, "PBRColumns", false);  // 2 columns, no border
 
-		// Metallic Scale
 		ImGui::Text("Metallic Scale"); ImGui::NextColumn();
-		ImGui::SliderFloat("##Metallic", &metallicScale, 0.0f, 2.0f); ImGui::NextColumn();
+		ImGui::SliderFloat("##Metallic", &metallicScale, 0.0f, 2.0f); ImGui::NextColumn();// Metallic Scale
 
-		// Roughness Scale
 		ImGui::Text("Roughness Scale"); ImGui::NextColumn();
-		ImGui::SliderFloat("##Roughness", &roughnessScale, 0.0f, 2.0f); ImGui::NextColumn();
+		ImGui::SliderFloat("##Roughness", &roughnessScale, 0.0f, 2.0f); ImGui::NextColumn();// Roughness Scale
 
-		// Albedo Scale
 		ImGui::Text("Albedo Scale"); ImGui::NextColumn();
-		ImGui::SliderFloat3("##Albedo", &albedoScale[0], 0.0f, 2.0f); ImGui::NextColumn();
+		ImGui::SliderFloat3("##Albedo", &albedoScale[0], 0.0f, 2.0f); ImGui::NextColumn();// Albedo Scale
 
-		// Reset columns and style
-		ImGui::Columns(1);
+		ImGui::Columns(1);// Reset columns and style
 		style.FramePadding.x = originalFramePaddingX;
-
 		ImGui::End();
-
 
 		// ImGui Rendering
 		ImGui::Render();
