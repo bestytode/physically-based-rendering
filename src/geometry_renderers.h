@@ -300,29 +300,30 @@ namespace yzh {
 
 	// TODO
 	// ----
-	class Cylinder: public GeometryShape
+	class InstancingSphere : public GeometryShape
 	{
-	public:
-		Cylinder(const float radius, const  float height)
-		{
 
-		}
+	};
 
-		~Cylinder() override
-		{
+	// TODO
+	// ----
+	class InstancingCube : public GeometryShape
+	{
 
-		}
+	};
 
-		void Render() override
-		{
+	// TODO
+	// ----
+	class InstancingQuad : public GeometryShape
+	{
 
-		}
+	};
 
-		float SurfaceArea() const override { return 0.0f; }
-		const unsigned int GetVAO() const { return this->VAO; }
+	// TODO
+	// ----
+	class Cylinder : public GeometryShape
+	{
 
-	private:
-		unsigned int VAO = 0, VBO, IBO;
 
 	};
 };

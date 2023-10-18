@@ -104,9 +104,9 @@ int main()
 	unsigned int ao = LoadTexture("res/textures/pbr/rusted_iron/ao.png");
 
 	// Scaling factors (control them in UI panal)
-	float metallicScale = 1.0f;
-	float roughnessScale = 1.0f;
-	glm::vec3 albedoScale(1.0f, 1.0f, 1.0f);
+	float metallicScale = 1.0f; // Scale factor for metallic
+	float roughnessScale = 1.0f; // Scale factor for roughness
+	glm::vec3 albedoScale(1.0f, 1.0f, 1.0f); // Scale factor for albedo
 
 	shader.Bind();
 	shader.SetInt("albedoMap", 0);
@@ -165,12 +165,14 @@ int main()
 
 		// render rows * column number of spheres with varying metallic/roughness values
 		// -----------------------------------------------------------------------------
+        // TODO: use instancing rendering when there are many rendering objects.
 		for (int row = 0; row < nrRows; row++) {
 			for (int col = 0; col < nrColumns; col++) {
 				// Clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit on direct lighting.
 				model = glm::mat4(1.0f);
 				model = glm::translate(model, glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f));
 				model = glm::scale(model, glm::vec3(0.5f));
+
 				shader.SetMat4("model", model);
 				shader.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 				sphere.Render();
