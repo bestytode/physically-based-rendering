@@ -1,3 +1,12 @@
+// Introduction: PBR rendering with texture
+// 
+// already #define GLEW_STATIC in preproccesor to specify static linking for glew 
+// Dependencies: glfw, glew, glm, Assimp, ImGui, stb_image.h
+// enviroment: Debug or Release with x64
+// 
+// Author: Yu
+// Date 2023/10/18
+
 #include <iostream>
 #include <stdexcept>
 

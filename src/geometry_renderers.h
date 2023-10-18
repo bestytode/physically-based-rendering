@@ -1,10 +1,8 @@
 // This header file provides a collection of functions for easily rendering specific geometric shapes in OpenGL.
-// Note: Each function includes vertex attributes for position, normal, and texture coordinates.
 // 
-// 
-// 
+// Note: Each function includes vertex attributes by position, normal, and texture coordinates, which means:
+// You have to specify layout(location = x) in glsl code by this order as well! 
 //
-// 
 // 
 // Author: Zhenhuan Yu
 // Date: 2023/09/17
