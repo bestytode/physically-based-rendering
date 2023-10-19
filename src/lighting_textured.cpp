@@ -229,23 +229,18 @@ int main()
 		}
 		ImGui::Begin("PBR");
 
-		// Custom styling
-		ImGuiStyle& style = ImGui::GetStyle();
-		float originalFramePaddingX = style.FramePadding.x;
-		style.FramePadding.x = 4;
-		ImGui::Columns(2, "PBRColumns", false);  // 2 columns, no border
+		ImGui::Text("Metallic Scale"); // Metallic Scale
+		ImGui::SameLine();
+		ImGui::SliderFloat("##Metallic", &metallicScale, 0.0f, 2.0f);
 
-		ImGui::Text("Metallic Scale"); ImGui::NextColumn();
-		ImGui::SliderFloat("##Metallic", &metallicScale, 0.0f, 2.0f); ImGui::NextColumn();// Metallic Scale
+		ImGui::Text("Roughness Scale"); // Roughness Scale
+		ImGui::SameLine();
+		ImGui::SliderFloat("##Roughness", &roughnessScale, 0.0f, 2.0f);
 
-		ImGui::Text("Roughness Scale"); ImGui::NextColumn();
-		ImGui::SliderFloat("##Roughness", &roughnessScale, 0.0f, 2.0f); ImGui::NextColumn();// Roughness Scale
+		ImGui::Text("Albedo Scale"); // Albedo Scale
+		ImGui::SameLine();
+		ImGui::SliderFloat3("##Albedo", &albedoScale[0], 0.0f, 2.0f);
 
-		ImGui::Text("Albedo Scale"); ImGui::NextColumn();
-		ImGui::SliderFloat3("##Albedo", &albedoScale[0], 0.0f, 2.0f); ImGui::NextColumn();// Albedo Scale
-
-		ImGui::Columns(1);// Reset columns and style
-		style.FramePadding.x = originalFramePaddingX;
 		ImGui::End();
 
 		// ImGui Rendering
