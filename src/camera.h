@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-enum CameraMovementDirection
+enum Direction
 {
     FORWARD,  // W
     BACKWARD, // A
@@ -55,7 +55,7 @@ public:
 
     // processes input received from any keyboard-like input system. 
     // Accepts input parameter in the form of camera defined ENUM 
-    void ProcessKeyboard(CameraMovementDirection _direction, float deltaTime);
+    void ProcessKeyboard(Direction _direction, float deltaTime);
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrain = true);
@@ -85,7 +85,7 @@ public:
     float fov; // field of view
 };
 
-void Camera::ProcessKeyboard(CameraMovementDirection _direction, float deltaTime)
+void Camera::ProcessKeyboard(Direction _direction, float deltaTime)
 {
 	float velocity = movementSpeed * deltaTime;
 
