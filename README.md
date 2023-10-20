@@ -26,15 +26,15 @@ $$
 
 ### Explanations for BRDF Parameters
 
-- **( $$\alpha$$ ) (roughness coefficient)**: This is the roughness parameter, affecting the spread of microfacets. A smaller value leads to a smoother surface, while a larger value results in a rougher surface.
+- **( $\alpha$ ) (roughness coefficient)**: This is the roughness parameter, affecting the spread of microfacets. A smaller value leads to a smoother surface, while a larger value results in a rougher surface.
 
-- **( $$F_0$$ ) (Fresnel-Schlick Approximation)**: The value of reflectance at zero angle of incidence, which defines how reflective the material is.
+- **( $F_0$ ) (Fresnel-Schlick Approximation)**: The value of reflectance at zero angle of incidence, which defines how reflective the material is.
 
-- **( $$N$$ ) (Normal Vector)**: The surface normal vector at the point of interest.
+- **( $N$ ) (Normal Vector)**: The surface normal vector at the point of interest.
 
-- **( $$V$$ ) (View Vector)**: The vector pointing from the surface point to the camera.
+- **( $V$ ) (View Vector)**: The vector pointing from the surface point to the camera.
 
-- **( $$L$$ ) (Light Vector)**: The vector pointing from the surface point to the light source.
+- **( $L$ ) (Light Vector)**: The vector pointing from the surface point to the light source.
 
 ### BRDF Function
 The Bidirectional Reflectance Distribution Function (BRDF) is implemented in detail to provide high-fidelity rendering.
@@ -65,12 +65,12 @@ $$
 
 ### Explanations for Rendering Equation Parameters
 
-- **( $$L_o(p, \omega_o)$$ )**: The outgoing radiance at point $$( p )$$ in direction $$( \omega_o )$$.
+- **( $L_o(p, \omega_o)$ )**: The outgoing radiance at point $( p )$ in direction $( \omega_o )$.
 
-- **( $$L_e(p, \omega_o)$$ )**: The emitted radiance from point $$( p )$$ in direction $$( \omega_o )$$.
+- **( $L_e(p, \omega_o)$ )**: The emitted radiance from point $( p )$ in direction $( \omega_o )$.
 
-- **( $$f(p, \omega_o, \omega_i)$$ )**: The BRDF at point $$( p )$$.
+- **( $f(p, \omega_o, \omega_i)$ )**: The BRDF at point $( p )$.
 
-- **( $$L_i(p, \omega_i)$$ )**: The incoming radiance at point $$( p )$$ in direction $$( \omega_i )$$.
+- **( $L_i(p, \omega_i)$ )**: The incoming radiance at point $( p )$ in direction $( \omega_i )$.
 
-- **( $$\omega_i \cdot n$$ )**: The dot product between the incoming light direction and the surface normal, affecting how much light is received.
+- **( $\omega_i \cdot n$ )**: The dot product between the incoming light direction and the surface normal, affecting how much light is received.
