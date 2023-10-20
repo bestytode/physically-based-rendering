@@ -57,7 +57,7 @@ $$
 G = G_1(N \cdot V) \times G_1(N \cdot L)
 $$
 
-The $$( G_1 )$$ term is calculated as follows:
+The $( G_1 )$ term is calculated as follows:
 
 $$
 G_1(v) = \frac{2}{1 + \sqrt{1 + \alpha^2 \times (1 - (v \cdot n)^2) / (v \cdot n)^2}}
