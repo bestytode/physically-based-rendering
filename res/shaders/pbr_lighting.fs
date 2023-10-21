@@ -5,7 +5,7 @@ in vec3 WorldPos;
 in vec2 TexCoords;
 in vec3 Normal;
 
-uniform vec3 viewPos;
+uniform vec3 viewPos; // camera(eye) position
 
 // material parameters
 uniform sampler2D albedoMap;
@@ -25,17 +25,20 @@ uniform vec3 albedoScale;
 
 const float PI = 3.1415926;
 
+// Calculate the corresponding normal in world space
 vec3 getNormalFromMap()
 {
     vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
 
+ 	// dFdx(p) calculates the derivative of p with respect to the x-coordinate of the screen space.
+    // dFdy(p) calculates the derivative of p with respect to the y-coordinate of the screen space.
     vec3 Q1  = dFdx(WorldPos);
     vec3 Q2  = dFdy(WorldPos);
     vec2 st1 = dFdx(TexCoords);
     vec2 st2 = dFdy(TexCoords);
 
     vec3 N   = normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+    vec3 T  = normalize(Q1 * st2.t - Q2 * st1.t);
     vec3 B  = -normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
 
@@ -60,20 +63,21 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
-    float r = (roughness + 1.0);
-    float k = (r * r) / 8.0;
+    float r = (roughness + 1.0f);
+    float k = (r * r) / 8.0f;
 
     float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
+    float denom = NdotV * (1.0f - k) + k;
 
     return nom / denom;
 }
 
 // Calculate the possibility that occlussion each other in microfacets
+// We calculate them both with V and L
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
+    float NdotV = max(dot(N, V), 0.0f);
+    float NdotL = max(dot(N, L), 0.0f);
     float ggx1 = GeometrySchlickGGX(NdotV, roughness);
     float ggx2 = GeometrySchlickGGX(NdotL, roughness);
 
@@ -86,11 +90,12 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 // Notice: we use vec3 as return type because material itself reflects different kinds of light color differently.
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+    return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
 void main()
 {
+	// Retrive data from maps
 	vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2)) * albedoScale;
     float metallic  = texture(metallicMap, TexCoords).r * metallicScale;
     float roughness = texture(roughnessMap, TexCoords).r * roughnessScale;
@@ -104,8 +109,6 @@ void main()
 	F0 = mix(F0, albedo, metallic); // For metal material, we interpolate F0 to albedo based on the metallic coefficient
 
 	vec3 Lo = vec3(0.0f);
-
-	// we only have one light source here
 	for(int i = 0; i < 1; i++) {
 		// Calculate per-light radiance
 		vec3 L = normalize(lightPosition - WorldPos); // Light direction
@@ -113,7 +116,7 @@ void main()
 		float distance = length(lightPosition - WorldPos);
 		float attenuation = 1.0f / (distance * distance); // Simple attenuation, may use linear and quadratic coefficient later
 		vec3 incomingRadiance = lightColor * attenuation;
-		float NdotL = max(dot(N, L), 0.0);
+		float NdotL = max(dot(N, L), 0.0f);
         vec3 scaledIncomingRadiance = incomingRadiance * NdotL; 
 
 		// Cook-Torrance specular BRDF calculation
@@ -122,26 +125,23 @@ void main()
 		vec3 F = fresnelSchlick(max(dot(H, V), 0.0f), F0);
 
 		vec3 numerator = NDF * G * F;
-		float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+		float denominator = 4.0f * max(dot(N, V), 0.0f) * max(dot(N, L), 0.0f) + 0.0001f;
 		vec3 specular = numerator / denominator;
 
 		vec3 Ks = F; // fresnel function describe the reflect light ratio of total 
-		vec3 Kd = vec3(1.0f) - Ks;
-		Kd = Kd * (1 - metallic); // reduce the diffuse light of metal material
+		vec3 Kd = vec3(1.0f) - Ks; // Let Ks + Kd = 1.0f to keep energy conservation
+		Kd = Kd * (1.0f - metallic); // reduce the diffuse light of metal material
 
 		vec3 BRDF = Kd * albedo / PI + specular; // already multiplied the BRDF by the Fresnel (kS)
 		Lo += BRDF * scaledIncomingRadiance;
 	}
 
-	// ambient lighting (note that the next IBL tutorial will replace 
-    // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ao;
+	// ambient lighting 
+	// (the next IBL implementation will replace the ambient lighting with environment lighting).
+    vec3 ambient = vec3(0.03f) * albedo * ao;
     vec3 color = ambient + Lo;
 
-	// HDR tonemapping
-    color = color / (color + vec3(1.0));
-    // gamma correct
-    color = pow(color, vec3(1.0/2.2)); 
-
+    color = color / (color + vec3(1.0f)); // HDR tonemapping
+    color = pow(color, vec3(1.0f/2.2f));  // gamma correction
 	FragColor = vec4(color, 1.0f);
 }
