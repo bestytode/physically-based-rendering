@@ -129,7 +129,7 @@ void main()
 		vec3 Kd = vec3(1.0f) - Ks;
 		Kd = Kd * (1 - metallic); // reduce the diffuse light of metal material
 
-		vec3 BRDF = albedo / PI + specular;
+		vec3 BRDF = Kd * albedo / PI + specular; // already multiplied the BRDF by the Fresnel (kS)
 		Lo += BRDF * scaledIncomingRadiance;
 	}
 
