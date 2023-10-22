@@ -1,7 +1,7 @@
 #version 330 core
 out vec4 FragColor;
 
-in vec3 WorldPos;
+in vec3 WorldPos; // Representing p in rendering equation
 in vec2 TexCoords;
 in vec3 Normal;
 
@@ -103,7 +103,7 @@ void main()
 
 	// Both N & V is in world space
 	vec3 N = getNormalFromMap(); // Normal
-	vec3 V = normalize(viewPos - WorldPos); // View direction
+	vec3 V = normalize(viewPos - WorldPos); // View direction, representing w_o
 
 	vec3 F0 = vec3(0.04f); // For non-metal material, we simply use vec3(0.04f)
 	F0 = mix(F0, albedo, metallic); // For metal material, we interpolate F0 to albedo based on the metallic coefficient
@@ -111,7 +111,7 @@ void main()
 	vec3 Lo = vec3(0.0f);
 	for(int i = 0; i < 1; i++) {
 		// Calculate per-light radiance
-		vec3 L = normalize(lightPosition - WorldPos); // Light direction
+		vec3 L = normalize(lightPosition - WorldPos); // Light direction, representing w_i
 		vec3 H = normalize(V + L); // HalfwayVector
 		float distance = length(lightPosition - WorldPos);
 		float attenuation = 1.0f / (distance * distance); // Simple attenuation, may use linear and quadratic coefficient later

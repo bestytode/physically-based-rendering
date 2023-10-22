@@ -86,7 +86,7 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lighting_textured.cpp">
+    <ClCompile Include="src\ibr_irradiance_conversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -219,10 +219,16 @@
     <None Include="res\models\backpack\backpack.mtl" />
     <None Include="res\models\nanosuit\nanosuit.mtl" />
     <None Include="README.md" />
-    <None Include="res\shaders\pbr_lighting.vs" />
-    <None Include="res\shaders\pbr_lighting.fs" />
+    <None Include="res\shaders\pbr_lighting_textured.vs" />
+    <None Include="res\shaders\pbr_lighting_textured.fs" />
     <None Include="res\shaders\pbr_debug_light.vs" />
     <None Include="res\shaders\pbr_debug_light.fs" />
+    <None Include="res\textures\hdr\newport_loft.hdr" />
+    <None Include="res\shaders\cubemap.vs" />
+    <None Include="res\shaders\equirectangular_to_cubemap.fs" />
+    <None Include="res\shaders\irradiance_convolution.fs" />
+    <None Include="res\shaders\pbr.vs" />
+    <None Include="res\shaders\pbr.fs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\models\backpack\source_attribution.txt" />

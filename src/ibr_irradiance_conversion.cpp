@@ -29,7 +29,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void ProcessInput(GLFWwindow* window);
-unsigned int LoadTexture(const std::string& path);
+unsigned int LoadTexture(const std::string& path, bool isHDR = false);
+void CheckFramebufferStatus(unsigned int fbo, const std::string& framebufferName);
 
 // Scene settings
 int SCR_WIDTH = 1920;  // Screen width
@@ -72,6 +73,7 @@ int main()
 		// OpenGL global settings
 		// ----------------------
 		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL); // set depth function to less than AND equal for skybox depth trick.
 	}
 	catch (const std::runtime_error& e) {
 		std::cerr << e.what() << std::endl;
@@ -89,10 +91,144 @@ int main()
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
 	// Set VAO for geometry shape for later use
+	// ----------------------------------------
 	yzh::Quad quad;
 	yzh::Cube cube;
 	yzh::Sphere sphere(64, 64);
 
+	// Shader(s) build & compile
+	// -------------------------
+	Shader pbrShader("res/shaders/pbr.vs", "res/shaders/pbr.fs");
+	Shader equirectangularToCubemapShader("res/shaders/cubemap.vs", "res/shaders/equirectangular_to_cubemap.fs");
+	Shader irradianceShader("res/shaders/cubemap.vs", "res/shaders/irradiance_convolution.fs");
+	//Shader backgroundShader("2.1.2.background.vs", "2.1.2.background.fs");
+
+	pbrShader.Bind();
+	pbrShader.SetInt("irradianceMap", 0); // .hdr -> enviromentCubemap -> irradianceMap
+	pbrShader.SetVec3("albedo", 0.5f, 0.0f, 0.0f);
+	pbrShader.SetFloat("ao", 1.0f);
+	//backgroundShader.Bind();
+	//backgroundShader.SetInt("environmentMap", 0);
+
+	// lighting infos
+    // --------------
+	std::vector<glm::vec3> lightPositions = {
+		glm::vec3(-10.0f,  10.0f, 10.0f),
+		glm::vec3(10.0f,  10.0f, 10.0f),
+		glm::vec3(-10.0f, -10.0f, 10.0f),
+		glm::vec3(10.0f, -10.0f, 10.0f),
+	};
+	std::vector<glm::vec3> lightColors = {
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f)
+	};
+	int nrRows = 7;
+	int nrColumns = 7;
+	float spacing = 2.5;
+
+	// Set up framebuffer for generating environment cube map
+	// ------------------------------------------------------
+	unsigned int captureFBO, captureRBO;
+	const unsigned int CUBEMAP_DIMENSION = 512;
+
+	glGenFramebuffers(1, &captureFBO);
+	glGenRenderbuffers(1, &captureRBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, CUBEMAP_DIMENSION, CUBEMAP_DIMENSION); // 512 * 512 used for environmentCubemap
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+
+	// Load .hdr texture file
+	unsigned int hdrTexture = LoadTexture("res/textures/hdr/newport_loft.hdr", true);
+
+	// Set up cubemap to render to and attach to framebuffer
+	unsigned int environmentCubemap;
+	glGenTextures(1, &environmentCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap); // Notice we use GL_TEXTURE_CUBE_MAP
+	for (int i = 0; i < 6; i++) {
+		// Notice we use GL_RGB16F, GL_RGB, GL_FLOAT, which are all the same as hdrTexture
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, CUBEMAP_DIMENSION, CUBEMAP_DIMENSION, 0, GL_RGB, GL_FLOAT, nullptr);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Set up projection and view matrices for capturing data onto the 6 cubemap face directions
+	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f); // Notice we have to use 90.0f
+	std::vector<glm::mat4> captureViews = {
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+	};
+
+	// convert HDR equirectangular environment map to cubemap equivalent
+	glViewport(0, 0, CUBEMAP_DIMENSION, CUBEMAP_DIMENSION);
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	for (int i = 0; i < 6; i++) {
+		equirectangularToCubemapShader.SetMat4("view", captureViews[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, environmentCubemap, 0);
+
+#ifdef _DEBUG
+		CheckFramebufferStatus(captureFBO, "captureFBO");
+#endif
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		cube.Render(); // renders 2 * 2
+	}
+
+	// Generating an irradiance cubemap, and re-scale capture FBO to irradiance scale
+	// ------------------------------------------------------------------------------
+	unsigned int irradianceMap;
+	const unsigned int IRRADIANCE_MAP_DIMENSION = 32;
+	glGenTextures(1, &irradianceMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+	for (int i = 0; i < 6; ++i) {
+		// Notice we change the size from 512 * 512 to 32 * 32
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, IRRADIANCE_MAP_DIMENSION, IRRADIANCE_MAP_DIMENSION, 0, GL_RGB, GL_FLOAT, nullptr);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, IRRADIANCE_MAP_DIMENSION, IRRADIANCE_MAP_DIMENSION); // Change the size of renderbuffer accordingly
+
+	// pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
+	// -----------------------------------------------------------------------------
+	irradianceShader.Bind();
+	irradianceShader.SetInt("environmentMap", 0);
+	irradianceShader.SetMat4("projection", captureProjection);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap);
+
+	glViewport(0, 0, IRRADIANCE_MAP_DIMENSION, IRRADIANCE_MAP_DIMENSION); // Change the size of viewport accordingly
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	for (int i = 0; i < 6; ++i) {
+		irradianceShader.SetMat4("view", captureViews[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
+
+#ifdef _DEBUG
+		CheckFramebufferStatus(captureFBO, "captureFBO");
+#endif
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		cube.Render(); // renders 2 * 2
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	// config the viewport to the original framebuffer's screen dimensions before rendering
+	int scrWidth, scrHeight;
+	glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
+	glViewport(0, 0, scrWidth, scrHeight);
+	
 	timer.stop(); // Timer stops
 
 	// Imgui settings
@@ -100,6 +236,9 @@ int main()
 	bool ImGUIFirstTime = true;
 	double cursor_x, cursor_y;
 	unsigned char pixel[4];
+
+	// Render loop
+	// -----------
 	while (!glfwWindowShouldClose(window)) {
 		// Per-frame logic
 		float currentFrameTimePoint = (float)glfwGetTime();
@@ -232,31 +371,49 @@ void ProcessInput(GLFWwindow* window)
 }
 
 // Utility function for loading a 2D texture from file
-unsigned int LoadTexture(const std::string& path)
+// Loading HDR texture when isHDR is true
+unsigned int LoadTexture(const std::string& path, bool isHDR) 
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
 	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
-	if (data) {
-		GLenum format = GL_RGBA;
-		if (nrComponents == 1) format = GL_RED;
-		else if (nrComponents == 3) format = GL_RGB;
-		else if (nrComponents == 4) format = GL_RGBA;
-		else {
-			std::cerr << "Invalid texture format: Unsupported number of components!\n";
-			return -1;
-		}
+	void* data;
 
+	// Using stbi_load or stbi_loadf for different texture type
+	if (!isHDR) {
+		data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+	}
+	else {
+		stbi_set_flip_vertically_on_load(true);
+		data = stbi_loadf(path.c_str(), &width, &height, &nrComponents, 0);
+	}
+
+	if (data) {
+		GLenum format;
+		GLenum dataType = (isHDR) ? GL_FLOAT : GL_UNSIGNED_BYTE; // Set GL_FLOAT or GL_UNSIGNED_BYTE for different texture data type
+		GLint internalFormat; // Using 16-bit float format for HDR, otherwise internalFormat equals to format
+
+		if (nrComponents == 1) format = internalFormat = GL_RED;
+		else if (nrComponents == 3) format = internalFormat = GL_RGB;
+		else if (nrComponents == 4) format = internalFormat = GL_RGBA;
+		else std::cerr << "Invalid texture format: Unsupported number of components!\n";
+
+		if (isHDR) internalFormat = GL_RGB16F; 
+		
 		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, dataType, data);
+		if (!isHDR) 
+			glGenerateMipmap(GL_TEXTURE_2D);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		stbi_image_free(data);
+
+		if (!isHDR) 
+			stbi_image_free(data);
+		else 
+			stbi_image_free((float*)data);
 	}
 	else {
 		std::cerr << "Texture failed to load at path: " << path << std::endl;
@@ -266,3 +423,18 @@ unsigned int LoadTexture(const std::string& path)
 
 	return textureID;
 }
+
+#ifdef _DEBUG
+void CheckFramebufferStatus(unsigned int fbo, const std::string& framebufferName) 
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE) {
+		std::cerr << "Framebuffer (" << framebufferName << ") with ID (" << fbo << ") is not complete! Error code: " << status << std::endl;
+		// You can further translate 'status' into specific error strings if you want
+	}
+	else {
+		std::cout << "Framebuffer (" << framebufferName << ") with ID (" << fbo << ") is complete." << std::endl;
+	}
+}
+#endif
