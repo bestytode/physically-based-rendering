@@ -116,6 +116,10 @@ int main()
 	unsigned int metallic = LoadTexture("res/textures/pbr/rusted_iron/metallic.png");
 	unsigned int roughness = LoadTexture("res/textures/pbr/rusted_iron/roughness.png");
 	unsigned int ao = LoadTexture("res/textures/pbr/rusted_iron/ao.png");
+	// Scaling factors (control them in UI panal)
+	float metallicScale = 1.0f; // Scale factor for metallic
+	float roughnessScale = 1.0f; // Scale factor for roughness
+	glm::vec3 albedoScale(1.0f, 1.0f, 1.0f); // Scale factor for albedo
 
 	// lighting infos
     // --------------
@@ -166,8 +170,8 @@ int main()
 	else
 		std::cout << "Failed to load HDR image." << std::endl;
 	
-
 	// Set up cubemap to render to and attach to framebuffer
+	// -----------------------------------------------------
 	unsigned int environmentCubemap;
 	glGenTextures(1, &environmentCubemap);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap); // Notice we use GL_TEXTURE_CUBE_MAP
@@ -193,6 +197,7 @@ int main()
 	};
 
 	// convert HDR equirectangular environment map to cubemap equivalent
+	// -----------------------------------------------------------------
 	equirectangular_to_cubemap_shader.Bind();
 	equirectangular_to_cubemap_shader.SetInt("equirectangularMap", 0);
 	equirectangular_to_cubemap_shader.SetMat4("projection", captureProjection);
@@ -259,18 +264,13 @@ int main()
 	glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
 	glViewport(0, 0, scrWidth, scrHeight);
 	
-	timer.stop(); // Timer stops
-
 	// Imgui settings
 	// --------------
 	bool ImGUIFirstTime = true;
 	double cursor_x, cursor_y;
 	unsigned char pixel[4];
 
-	// Scaling factors (control them in UI panal)
-	float metallicScale = 1.0f; // Scale factor for metallic
-	float roughnessScale = 1.0f; // Scale factor for roughness
-	glm::vec3 albedoScale(1.0f, 1.0f, 1.0f); // Scale factor for albedo
+	timer.stop(); // Timer stops
 
 	// Render loop
 	// -----------
@@ -325,7 +325,7 @@ int main()
 		pbr_ibl_diffuse_textured.SetMat4("view", view);
 		pbr_ibl_diffuse_textured.SetVec3("viewPos", camera.position);
 
-		// Scaling factors
+		// pbr scaling factors
 		pbr_ibl_diffuse_textured.SetFloat("roughnessScale", roughnessScale);
 		pbr_ibl_diffuse_textured.SetFloat("metallicScale", metallicScale);
 		pbr_ibl_diffuse_textured.SetVec3("albedoScale", albedoScale);
@@ -343,8 +343,8 @@ int main()
 			}
 		}
 
-		// Render pbr sphere without texture (from tutorial)
-		// -------------------------------------------------
+		// Render pbr sphere without texture, changing metallic and roughness by row and col
+		// ---------------------------------------------------------------------------------
 		pbr_ibl_diffuse.Bind();
 		pbr_ibl_diffuse.SetMat4("projection", projection);
 		pbr_ibl_diffuse.SetMat4("view", view);
@@ -392,7 +392,8 @@ int main()
 		}
 
 		// render skybox (render as last to prevent overdraw)
-		// --------------------------------------------------
+		// notice that we explicitly set depth value to 1.0f
+		// -------------------------------------------------
 		background_shader.Bind();
 		background_shader.SetMat4("view", view);
 		background_shader.SetMat4("projection", projection);
@@ -401,6 +402,8 @@ int main()
 		//glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap); // display irradiance map
 		cube.Render();
 
+		// ImGui code
+		// ----------
 		// ImGui new frame 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
