@@ -17,14 +17,14 @@ uniform samplerCube irradianceMap;
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 
-uniform vec3 camPos;
+uniform vec3 viewPos;
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;
-    float a2 = a*a;
+    float a2 = a; //* a; 
     float NdotH = max(dot(N, H), 0.0);
     float NdotH2 = NdotH*NdotH;
 
@@ -38,7 +38,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
-    float k = (r*r) / 8.0;
+    float k = (r * r) / 8.0;
 
     float nom   = NdotV;
     float denom = NdotV * (1.0 - k) + k;
@@ -64,7 +64,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 void main()
 {		
     vec3 N = Normal;
-    vec3 V = normalize(camPos - WorldPos);
+    vec3 V = normalize(viewPos - WorldPos);
     vec3 R = reflect(-V, N); 
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 

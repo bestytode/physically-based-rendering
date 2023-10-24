@@ -101,14 +101,15 @@ int main()
 	Shader pbrShader("res/shaders/pbr.vs", "res/shaders/pbr.fs");
 	Shader equirectangularToCubemapShader("res/shaders/cubemap.vs", "res/shaders/equirectangular_to_cubemap.fs");
 	Shader irradianceShader("res/shaders/cubemap.vs", "res/shaders/irradiance_convolution.fs");
-	//Shader backgroundShader("2.1.2.background.vs", "2.1.2.background.fs");
+	Shader backgroundShader("res/shaders/background.vs", "res/shaders/background.fs");
+	Shader debugLightShader("res/shaders/pbr_debug_light.vs", "res/shaders/pbr_debug_light.fs");
 
 	pbrShader.Bind();
 	pbrShader.SetInt("irradianceMap", 0); // .hdr -> enviromentCubemap -> irradianceMap
 	pbrShader.SetVec3("albedo", 0.5f, 0.0f, 0.0f);
 	pbrShader.SetFloat("ao", 1.0f);
-	//backgroundShader.Bind();
-	//backgroundShader.SetInt("environmentMap", 0);
+	backgroundShader.Bind();
+	backgroundShader.SetInt("environmentMap", 0);
 
 	// lighting infos
     // --------------
@@ -169,6 +170,15 @@ int main()
 	};
 
 	// convert HDR equirectangular environment map to cubemap equivalent
+	equirectangularToCubemapShader.Bind();
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::scale(model, glm::vec3(0.5f));
+	equirectangularToCubemapShader.SetInt("equirectangularMap", 0);
+	equirectangularToCubemapShader.SetMat4("projection", captureProjection);
+	equirectangularToCubemapShader.SetMat4("model", model);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, hdrTexture);
+
 	glViewport(0, 0, CUBEMAP_DIMENSION, CUBEMAP_DIMENSION);
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (int i = 0; i < 6; i++) {
@@ -179,8 +189,9 @@ int main()
 		CheckFramebufferStatus(captureFBO, "captureFBO");
 #endif
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		cube.Render(); // renders 2 * 2
+		cube.Render(); // renders 1 * 1
 	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Generating an irradiance cubemap, and re-scale capture FBO to irradiance scale
 	// ------------------------------------------------------------------------------
@@ -207,6 +218,7 @@ int main()
 	irradianceShader.Bind();
 	irradianceShader.SetInt("environmentMap", 0);
 	irradianceShader.SetMat4("projection", captureProjection);
+	irradianceShader.SetMat4("model", model);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap);
 
@@ -220,7 +232,7 @@ int main()
 		CheckFramebufferStatus(captureFBO, "captureFBO");
 #endif
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		cube.Render(); // renders 2 * 2
+		cube.Render(); // renders 1 * 1
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
@@ -252,7 +264,66 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// TODO
+		// render scene, supplying the convoluted irradiance map to the final shader.
+        // ------------------------------------------------------------------------------------------
+		pbrShader.Bind();
+
+		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		pbrShader.SetMat4("view", view);
+		pbrShader.SetMat4("projection", projection);
+		pbrShader.SetVec3("viewPos", camera.position);
+
+		// bind pre-computed IBL data
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+
+		// render rows * column number of spheres with varying metallic/roughness values
+		model = glm::mat4(1.0f);
+		for (int row = 0; row < nrRows; ++row) {
+			pbrShader.SetFloat("metallic", (float)row / (float)nrRows);
+			for (int col = 0; col < nrColumns; ++col) {
+				// we clamp the roughness to 0.025 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit off
+				// on direct lighting.
+				pbrShader.SetFloat("roughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
+
+				model = glm::mat4(1.0f);
+				model = glm::translate(model, glm::vec3((float)(col - (nrColumns / 2)) * spacing, (float)(row - (nrRows / 2)) * spacing, -2.0f));
+				model = glm::scale(model, glm::vec3(0.5f));
+				pbrShader.SetMat4("model", model);
+				pbrShader.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+				sphere.Render();
+			}
+		}
+
+		// render light source
+		// -------------------
+		debugLightShader.Bind();
+		debugLightShader.SetMat4("projection", projection);
+		debugLightShader.SetMat4("view", view);
+
+		for (int i = 0; i < lightPositions.size(); ++i) {
+			pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", lightPositions[i]);
+			pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
+
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, lightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.5f));
+			debugLightShader.SetMat4("model", model);
+			sphere.Render();
+		}
+
+		// render skybox (render as last to prevent overdraw)
+		backgroundShader.Bind();
+		backgroundShader.SetMat4("view", view);
+		backgroundShader.SetMat4("projection", projection);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap); // display irradiance map
+		cube.Render();
+
+
+
 
 
 
@@ -424,7 +495,6 @@ unsigned int LoadTexture(const std::string& path, bool isHDR)
 	return textureID;
 }
 
-#ifdef _DEBUG
 void CheckFramebufferStatus(unsigned int fbo, const std::string& framebufferName) 
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -437,4 +507,3 @@ void CheckFramebufferStatus(unsigned int fbo, const std::string& framebufferName
 		std::cout << "Framebuffer (" << framebufferName << ") with ID (" << fbo << ") is complete." << std::endl;
 	}
 }
-#endif

@@ -50,7 +50,6 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
 	// looks more natural when squared roughness 
 	float a = roughness * roughness;
-	a = a * a; //...
 	float NdotH = max(dot(N, H), 0.0f);
 	float NdotH2 = NdotH * NdotH;
 

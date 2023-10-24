@@ -225,6 +225,8 @@
     <None Include="README.md" />
     <None Include="res\models\backpack\backpack.mtl" />
     <None Include="res\models\nanosuit\nanosuit.mtl" />
+    <None Include="res\shaders\background.fs" />
+    <None Include="res\shaders\background.vs" />
     <None Include="res\shaders\cubemap.vs" />
     <None Include="res\shaders\equirectangular_to_cubemap.fs" />
     <None Include="res\shaders\irradiance_convolution.fs" />

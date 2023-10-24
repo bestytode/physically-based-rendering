@@ -229,6 +229,8 @@
     <None Include="res\shaders\irradiance_convolution.fs" />
     <None Include="res\shaders\pbr.vs" />
     <None Include="res\shaders\pbr.fs" />
+    <None Include="res\shaders\background.vs" />
+    <None Include="res\shaders\background.fs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\models\backpack\source_attribution.txt" />
