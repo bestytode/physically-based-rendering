@@ -2,10 +2,10 @@
 
 This repository focuses on the implementation of a Physically-Based Rendering (PBR) model, specifically within the `pbr_textured.cpp` file.
 
-## Key Features
 
-### PBR Model
+## PBR Model
 The implementation adheres to the Physically-Based Rendering model, designed to simulate the realistic interaction between light and materials.
+Note that at this stage `lighting.textured.cpp` we don't have IBL light yet.
 
 ### Microfacets Theory
 The code is grounded on Microfacets Theory, taking into account the microscopic surface details when rendering materials.
@@ -74,3 +74,36 @@ $$
 - **( $V$ ) (View Vector)**: The vector pointing from the surface point to the camera.
 
 - **( $L$ ) (Light Vector)**: The vector pointing from the surface point to the light source.
+- 
+
+## PBR with IBL in C++
+This repository focuses on Physically-Based Rendering (PBR) using Image-Based Lighting (IBL), specifically for diffuse IBL. The main file of interest is `ibr_irradiance_conversion.cpp`, accompanied by several fragment shaders, including `equirectangular_to_cubemap.fs` and `irradiance_convolution.fs`.
+
+### Loading HDR Texture
+An HDR image located at `"res/textures/hdr/newport_loft.hdr"` is loaded using the `stbi_loadf` function from the `stb.image.h` library. This image serves as the environmental light source; however, it first needs to be converted into a cubemap.
+
+### Environment Cubemap Configuration
+
+During this stage, a framebuffer and a `GL_CUBE_MAP` named `environmentCubemap` are set up to capture the scene. The viewport is set to 512x512 pixels. We populate a `captureViews` array to send different view matrices to the GPU for each of the 6 necessary renderings.
+
+The conversion from the HDR equirectangular texture to the environment cubemap is a key process here. This is performed by the fragment shader `equirectangular_to_cubemap.fs`. 
+
+The shader uses spherical coordinates to map each point on the cubemap to a corresponding point in the equirectangular map. The formula to convert a 3D direction vector \( v \) to a 2D point \( (u, v) \) on the equirectangular map is as follows:
+
+$$
+(u, v) = \left( \frac{ \arctan(v.z, v.x) }{ 2\pi } + 0.5, \frac{ \arcsin(v.y) }{ \pi } + 0.5 \right)
+$$
+
+This formula ensures that the HDR equirectangular texture is correctly projected onto the 3D cubemap, capturing the environmental lighting accurately.
+
+
+### Creating the Irradiance Map
+Here, another cubemap is configured with a viewport size of 32x32. The `irradiance_convolution.fs` shader converts the initial cubemap into an `irradianceMap`.
+// TODO
+
+### PBR and Diffuse IBL 
+The `pbr_ibl_diffuse_textured.fs` shader is used to render spheres utilizing PBR. Instead of traditional ambient lighting, we sample from the `irradianceMap` using the normal vector. 
+(i.e., `vec3 irradiance = texture(irradianceMap, N).rgb;`)
+
+### Skybox Rendering
+A skybox is rendered, setting its depth value explicitly to 1.0f. This prevents overdraw and is implemented in `background.vs` by setting `gl_Position` to `clipPos.xyww`.
