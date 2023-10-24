@@ -98,7 +98,8 @@ int main()
 
 	// Shader(s) build & compile
 	// -------------------------
-	Shader pbrShader("res/shaders/pbr_lighting_textured.vs", "res/shaders/pbr.fs");
+	Shader pbr_shader_textured("res/shaders/pbr.vs", "res/shaders/pbr.fs");
+	Shader pbr_shader_notextured("res/shaders/pbr.vs", "res/shaders/pbr_notextured.fs");
 	Shader equirectangularToCubemapShader("res/shaders/cubemap.vs", "res/shaders/equirectangular_to_cubemap.fs");
 	Shader irradianceShader("res/shaders/cubemap.vs", "res/shaders/irradiance_convolution.fs");
 	Shader backgroundShader("res/shaders/background.vs", "res/shaders/background.fs");
@@ -131,7 +132,7 @@ int main()
 	};
 	int nrRows = 7;
 	int nrColumns = 7;
-	float spacing = 2.5;
+	float spacing = 5.0f;
 
 	// Set up framebuffer for generating environment cube map
 	// ------------------------------------------------------
@@ -192,11 +193,8 @@ int main()
 
 	// convert HDR equirectangular environment map to cubemap equivalent
 	equirectangularToCubemapShader.Bind();
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(0.5f));
 	equirectangularToCubemapShader.SetInt("equirectangularMap", 0);
 	equirectangularToCubemapShader.SetMat4("projection", captureProjection);
-	equirectangularToCubemapShader.SetMat4("model", model);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, hdrTexture);
 
@@ -238,7 +236,6 @@ int main()
 	irradianceShader.Bind();
 	irradianceShader.SetInt("environmentMap", 0);
 	irradianceShader.SetMat4("projection", captureProjection);
-	irradianceShader.SetMat4("model", model);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap);
 
@@ -293,15 +290,16 @@ int main()
         // ------------------------------------------------------------------------------------------
 		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-		pbrShader.Bind();
+		glm::mat4 model = glm::mat4(1.0f);
+		pbr_shader_textured.Bind();
 		
 		// texture units uniforms
-		pbrShader.SetInt("albedoMap", 0);
-		pbrShader.SetInt("normalMap", 1);
-		pbrShader.SetInt("metallicMap", 2);
-		pbrShader.SetInt("roughnessMap", 3);
-		pbrShader.SetInt("aoMap", 4);
-		pbrShader.SetInt("irradianceMap", 5);
+		pbr_shader_textured.SetInt("albedoMap", 0);
+		pbr_shader_textured.SetInt("normalMap", 1);
+		pbr_shader_textured.SetInt("metallicMap", 2);
+		pbr_shader_textured.SetInt("roughnessMap", 3);
+		pbr_shader_textured.SetInt("aoMap", 4);
+		pbr_shader_textured.SetInt("irradianceMap", 5);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, albedo);
 		glActiveTexture(GL_TEXTURE1);
@@ -319,17 +317,17 @@ int main()
 		for (int i = 0; i < lightPositions.size(); ++i) {
 			std::string posName = "lightPositions[" + std::to_string(i) + "]";
 			std::string colName = "lightColors[" + std::to_string(i) + "]";
-			pbrShader.SetVec3(posName, lightPositions[i]);
-			pbrShader.SetVec3(colName, lightColors[i]);
+			pbr_shader_textured.SetVec3(posName, lightPositions[i]);
+			pbr_shader_textured.SetVec3(colName, lightColors[i]);
 		}
-		pbrShader.SetMat4("projection", projection);
-		pbrShader.SetMat4("view", view);
-		pbrShader.SetVec3("viewPos", camera.position);
+		pbr_shader_textured.SetMat4("projection", projection);
+		pbr_shader_textured.SetMat4("view", view);
+		pbr_shader_textured.SetVec3("viewPos", camera.position);
 
 		// Scaling factors
-		pbrShader.SetFloat("roughnessScale", roughnessScale);
-		pbrShader.SetFloat("metallicScale", metallicScale);
-		pbrShader.SetVec3("albedoScale", albedoScale);
+		pbr_shader_textured.SetFloat("roughnessScale", roughnessScale);
+		pbr_shader_textured.SetFloat("metallicScale", metallicScale);
+		pbr_shader_textured.SetVec3("albedoScale", albedoScale);
 
 		for (int row = 0; row < nrRows; row++) {
 			for (int col = 0; col < nrColumns; col++) {
@@ -338,8 +336,42 @@ int main()
 				model = glm::translate(model, glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f));
 				model = glm::scale(model, glm::vec3(0.5f));
 
-				pbrShader.SetMat4("model", model);
-				pbrShader.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+				pbr_shader_textured.SetMat4("model", model);
+				pbr_shader_textured.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+				//sphere.Render();
+			}
+		}
+
+		// Render pbr sphere without texture (from tutorial)
+		// -------------------------------------------------
+		pbr_shader_notextured.Bind();
+		pbr_shader_notextured.SetMat4("projection", projection);
+		pbr_shader_notextured.SetMat4("view", view);
+		pbr_shader_notextured.SetVec3("viewPos", camera.position);
+		pbr_shader_notextured.SetVec3("albedo", 0.5f, 0.0f, 0.0f);
+		pbr_shader_notextured.SetFloat("ao", 1.0f);
+
+		// lighting uniforms
+		for (int i = 0; i < lightPositions.size(); ++i) {
+			std::string posName = "lightPositions[" + std::to_string(i) + "]";
+			std::string colName = "lightColors[" + std::to_string(i) + "]";
+			pbr_shader_notextured.SetVec3(posName, lightPositions[i]);
+			pbr_shader_notextured.SetVec3(colName, lightColors[i]);
+		}
+
+		pbr_shader_notextured.SetInt("irradianceMap", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+
+		model = glm::mat4(1.0f);
+		for (int row = 0; row < nrRows; ++row) {
+			pbr_shader_notextured.SetFloat("metallic", (float)row / (float)nrRows);
+			for (int col = 0; col < nrColumns; ++col) {
+				pbr_shader_notextured.SetFloat("roughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
+				model = glm::mat4(1.0f);
+				model = glm::translate(model, glm::vec3((float)(col - (nrColumns / 2)) * spacing, (float)(row - (nrRows / 2)) * spacing, -2.0f));
+				pbr_shader_notextured.SetMat4("model", model);
+				pbr_shader_notextured.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 				sphere.Render();
 			}
 		}
@@ -359,6 +391,7 @@ int main()
 		}
 
 		// render skybox (render as last to prevent overdraw)
+		// --------------------------------------------------
 		backgroundShader.Bind();
 		backgroundShader.SetMat4("view", view);
 		backgroundShader.SetMat4("projection", projection);

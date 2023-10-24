@@ -235,7 +235,7 @@
     <None Include="res\shaders\pbr_debug_light.fs" />
     <None Include="res\shaders\pbr_debug_light.vs" />
     <None Include="res\shaders\pbr_lighting_textured.fs" />
-    <None Include="res\shaders\pbr_lighting_textured.vs" />
+    <None Include="res\shaders\pbr_notextured.fs" />
     <None Include="res\textures\hdr\newport_loft.hdr" />
   </ItemGroup>
   <ItemGroup>

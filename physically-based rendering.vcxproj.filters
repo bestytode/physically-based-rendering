@@ -219,7 +219,6 @@
     <None Include="res\models\backpack\backpack.mtl" />
     <None Include="res\models\nanosuit\nanosuit.mtl" />
     <None Include="README.md" />
-    <None Include="res\shaders\pbr_lighting_textured.vs" />
     <None Include="res\shaders\pbr_lighting_textured.fs" />
     <None Include="res\shaders\pbr_debug_light.vs" />
     <None Include="res\shaders\pbr_debug_light.fs" />
@@ -231,6 +230,7 @@
     <None Include="res\shaders\pbr.fs" />
     <None Include="res\shaders\background.vs" />
     <None Include="res\shaders\background.fs" />
+    <None Include="res\shaders\pbr_notextured.fs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\models\backpack\source_attribution.txt" />
