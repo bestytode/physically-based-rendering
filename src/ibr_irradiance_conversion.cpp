@@ -37,7 +37,7 @@ int SCR_WIDTH = 1920;  // Screen width
 int SCR_HEIGHT = 1080; // Screen height
 
 // Camera settings
-Camera camera(0.0f, 0.0f, 5.0f); // By default we set plane_near to 0.1f and plane_far to 100.0f
+Camera camera(0.0f, 0.0f, 3.0f); // By default we set plane_near to 0.1f and plane_far to 100.0f
 float lastX = (float)SCR_WIDTH / 2.0f;
 float lastY = (float)SCR_HEIGHT / 2.0f;
 bool mouseButtonPressed = true; // Move the camera only when pressing left mouse
@@ -98,18 +98,22 @@ int main()
 
 	// Shader(s) build & compile
 	// -------------------------
-	Shader pbrShader("res/shaders/pbr.vs", "res/shaders/pbr.fs");
+	Shader pbrShader("res/shaders/pbr_lighting_textured.vs", "res/shaders/pbr.fs");
 	Shader equirectangularToCubemapShader("res/shaders/cubemap.vs", "res/shaders/equirectangular_to_cubemap.fs");
 	Shader irradianceShader("res/shaders/cubemap.vs", "res/shaders/irradiance_convolution.fs");
 	Shader backgroundShader("res/shaders/background.vs", "res/shaders/background.fs");
 	Shader debugLightShader("res/shaders/pbr_debug_light.vs", "res/shaders/pbr_debug_light.fs");
 
-	pbrShader.Bind();
-	pbrShader.SetInt("irradianceMap", 0); // .hdr -> enviromentCubemap -> irradianceMap
-	pbrShader.SetVec3("albedo", 0.5f, 0.0f, 0.0f);
-	pbrShader.SetFloat("ao", 1.0f);
 	backgroundShader.Bind();
 	backgroundShader.SetInt("environmentMap", 0);
+
+	// load PBR material textures
+    // --------------------------
+	unsigned int albedo = LoadTexture("res/textures/pbr/rusted_iron/albedo.png");
+	unsigned int normal = LoadTexture("res/textures/pbr/rusted_iron/normal.png");
+	unsigned int metallic = LoadTexture("res/textures/pbr/rusted_iron/metallic.png");
+	unsigned int roughness = LoadTexture("res/textures/pbr/rusted_iron/roughness.png");
+	unsigned int ao = LoadTexture("res/textures/pbr/rusted_iron/ao.png");
 
 	// lighting infos
     // --------------
@@ -132,17 +136,34 @@ int main()
 	// Set up framebuffer for generating environment cube map
 	// ------------------------------------------------------
 	unsigned int captureFBO, captureRBO;
-	const unsigned int CUBEMAP_DIMENSION = 512;
-
 	glGenFramebuffers(1, &captureFBO);
 	glGenRenderbuffers(1, &captureRBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, CUBEMAP_DIMENSION, CUBEMAP_DIMENSION); // 512 * 512 used for environmentCubemap
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512); // 512 * 512 used for environmentCubemap
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
 
-	// Load .hdr texture file
-	unsigned int hdrTexture = LoadTexture("res/textures/hdr/newport_loft.hdr", true);
+	// pbr: load the HDR environment map
+	// ---------------------------------
+	stbi_set_flip_vertically_on_load(true);
+	int width, height, nrComponents;
+	float* data = stbi_loadf("res/textures/hdr/newport_loft.hdr", &width, &height, &nrComponents, 0);
+	unsigned int hdrTexture;
+	if (data) {
+		glGenTextures(1, &hdrTexture);
+		glBindTexture(GL_TEXTURE_2D, hdrTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data); // note how we specify the texture's data value to be float
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+		std::cout << "Failed to load HDR image." << std::endl;
+	
 
 	// Set up cubemap to render to and attach to framebuffer
 	unsigned int environmentCubemap;
@@ -150,7 +171,7 @@ int main()
 	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap); // Notice we use GL_TEXTURE_CUBE_MAP
 	for (int i = 0; i < 6; i++) {
 		// Notice we use GL_RGB16F, GL_RGB, GL_FLOAT, which are all the same as hdrTexture
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, CUBEMAP_DIMENSION, CUBEMAP_DIMENSION, 0, GL_RGB, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -179,7 +200,7 @@ int main()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, hdrTexture);
 
-	glViewport(0, 0, CUBEMAP_DIMENSION, CUBEMAP_DIMENSION);
+	glViewport(0, 0, 512, 512);
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (int i = 0; i < 6; i++) {
 		equirectangularToCubemapShader.SetMat4("view", captureViews[i]);
@@ -196,12 +217,11 @@ int main()
 	// Generating an irradiance cubemap, and re-scale capture FBO to irradiance scale
 	// ------------------------------------------------------------------------------
 	unsigned int irradianceMap;
-	const unsigned int IRRADIANCE_MAP_DIMENSION = 32;
 	glGenTextures(1, &irradianceMap);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
 	for (int i = 0; i < 6; ++i) {
 		// Notice we change the size from 512 * 512 to 32 * 32
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, IRRADIANCE_MAP_DIMENSION, IRRADIANCE_MAP_DIMENSION, 0, GL_RGB, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 32, 32, 0, GL_RGB, GL_FLOAT, nullptr);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -211,7 +231,7 @@ int main()
 
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, IRRADIANCE_MAP_DIMENSION, IRRADIANCE_MAP_DIMENSION); // Change the size of renderbuffer accordingly
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32); // Change the size of renderbuffer accordingly
 
 	// pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
 	// -----------------------------------------------------------------------------
@@ -222,7 +242,7 @@ int main()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap);
 
-	glViewport(0, 0, IRRADIANCE_MAP_DIMENSION, IRRADIANCE_MAP_DIMENSION); // Change the size of viewport accordingly
+	glViewport(0, 0, 32, 32); // Change the size of viewport accordingly
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (int i = 0; i < 6; ++i) {
 		irradianceShader.SetMat4("view", captureViews[i]);
@@ -249,6 +269,11 @@ int main()
 	double cursor_x, cursor_y;
 	unsigned char pixel[4];
 
+	// Scaling factors (control them in UI panal)
+	float metallicScale = 1.0f; // Scale factor for metallic
+	float roughnessScale = 1.0f; // Scale factor for roughness
+	glm::vec3 albedoScale(1.0f, 1.0f, 1.0f); // Scale factor for albedo
+
 	// Render loop
 	// -----------
 	while (!glfwWindowShouldClose(window)) {
@@ -266,30 +291,53 @@ int main()
 
 		// render scene, supplying the convoluted irradiance map to the final shader.
         // ------------------------------------------------------------------------------------------
-		pbrShader.Bind();
-
 		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-		pbrShader.SetMat4("view", view);
-		pbrShader.SetMat4("projection", projection);
-		pbrShader.SetVec3("viewPos", camera.position);
-
-		// bind pre-computed IBL data
+		pbrShader.Bind();
+		
+		// texture units uniforms
+		pbrShader.SetInt("albedoMap", 0);
+		pbrShader.SetInt("normalMap", 1);
+		pbrShader.SetInt("metallicMap", 2);
+		pbrShader.SetInt("roughnessMap", 3);
+		pbrShader.SetInt("aoMap", 4);
+		pbrShader.SetInt("irradianceMap", 5);
 		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, albedo);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, normal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, metallic);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, roughness);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, ao);
+		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
 
-		// render rows * column number of spheres with varying metallic/roughness values
-		model = glm::mat4(1.0f);
-		for (int row = 0; row < nrRows; ++row) {
-			pbrShader.SetFloat("metallic", (float)row / (float)nrRows);
-			for (int col = 0; col < nrColumns; ++col) {
-				// we clamp the roughness to 0.025 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit off
-				// on direct lighting.
-				pbrShader.SetFloat("roughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
+		// Lighting uniforms
+		for (int i = 0; i < lightPositions.size(); ++i) {
+			std::string posName = "lightPositions[" + std::to_string(i) + "]";
+			std::string colName = "lightColors[" + std::to_string(i) + "]";
+			pbrShader.SetVec3(posName, lightPositions[i]);
+			pbrShader.SetVec3(colName, lightColors[i]);
+		}
+		pbrShader.SetMat4("projection", projection);
+		pbrShader.SetMat4("view", view);
+		pbrShader.SetVec3("viewPos", camera.position);
 
+		// Scaling factors
+		pbrShader.SetFloat("roughnessScale", roughnessScale);
+		pbrShader.SetFloat("metallicScale", metallicScale);
+		pbrShader.SetVec3("albedoScale", albedoScale);
+
+		for (int row = 0; row < nrRows; row++) {
+			for (int col = 0; col < nrColumns; col++) {
+				// Clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit on direct lighting.
 				model = glm::mat4(1.0f);
-				model = glm::translate(model, glm::vec3((float)(col - (nrColumns / 2)) * spacing, (float)(row - (nrRows / 2)) * spacing, -2.0f));
+				model = glm::translate(model, glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f));
 				model = glm::scale(model, glm::vec3(0.5f));
+
 				pbrShader.SetMat4("model", model);
 				pbrShader.SetMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 				sphere.Render();
@@ -303,9 +351,6 @@ int main()
 		debugLightShader.SetMat4("view", view);
 
 		for (int i = 0; i < lightPositions.size(); ++i) {
-			pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", lightPositions[i]);
-			pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
-
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, lightPositions[i]);
 			model = glm::scale(model, glm::vec3(0.5f));
@@ -321,13 +366,6 @@ int main()
 		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap);
 		//glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap); // display irradiance map
 		cube.Render();
-
-
-
-
-
-
-
 
 		// ImGui new frame 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -357,7 +395,19 @@ int main()
 			ImGUIFirstTime = false;
 		}
 		ImGui::Begin("PBR");
-		// TODO
+
+		//ImGui::Text("Metallic Scale"); // Metallic Scale
+		//ImGui::SameLine();
+		//ImGui::SliderFloat("##Metallic", &metallicScale, 0.0f, 2.0f);
+
+		ImGui::Text("Roughness Scale"); // Roughness Scale
+		ImGui::SameLine();
+		ImGui::SliderFloat("##Roughness", &roughnessScale, 0.0f, 2.0f);
+
+		ImGui::Text("Albedo Scale"); // Albedo Scale
+		ImGui::SameLine();
+		ImGui::SliderFloat3("##Albedo", &albedoScale[0], 0.0f, 2.0f);
+
 		ImGui::End();
 
 		// ImGui Rendering
