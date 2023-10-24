@@ -15,5 +15,5 @@ void main()
 	mat4 rotView = mat4(mat3(view));
 	vec4 clipPos = projection * rotView * vec4(WorldPos, 1.0);
 
-	gl_Position = clipPos.xyww;
+	gl_Position = clipPos.xyww; // this can ensure the depth value is 1.0f so as the background color
 }

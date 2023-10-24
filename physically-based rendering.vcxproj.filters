@@ -220,17 +220,17 @@
     <None Include="res\models\nanosuit\nanosuit.mtl" />
     <None Include="README.md" />
     <None Include="res\shaders\pbr_lighting_textured.fs" />
-    <None Include="res\shaders\pbr_debug_light.vs" />
-    <None Include="res\shaders\pbr_debug_light.fs" />
+    <None Include="res\shaders\debug_light.vs" />
+    <None Include="res\shaders\debug_light.fs" />
     <None Include="res\textures\hdr\newport_loft.hdr" />
     <None Include="res\shaders\cubemap.vs" />
     <None Include="res\shaders\equirectangular_to_cubemap.fs" />
     <None Include="res\shaders\irradiance_convolution.fs" />
-    <None Include="res\shaders\pbr.vs" />
-    <None Include="res\shaders\pbr.fs" />
+    <None Include="res\shaders\pbr_ibl.vs" />
+    <None Include="res\shaders\pbr_ibl_diffuse_textured.fs" />
     <None Include="res\shaders\background.vs" />
     <None Include="res\shaders\background.fs" />
-    <None Include="res\shaders\pbr_notextured.fs" />
+    <None Include="res\shaders\pbr_ibl_diffuse.fs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\models\backpack\source_attribution.txt" />

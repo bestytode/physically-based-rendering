@@ -94,8 +94,8 @@ int main()
 	yzh::Sphere sphere(64, 64);
 
 	// build and compile shader(s)
-	Shader shader("res/shaders/pbr.vs", "res/shaders/pbr_lighting_textured.fs");
-	Shader shaderLight("res/shaders/pbr_debug_light.vs", "res/shaders/pbr_debug_light.fs");
+	Shader shader("res/shaders/pbr_ibl.vs", "res/shaders/pbr_lighting_textured.fs");
+	Shader shaderLight("res/shaders/debug_light.vs", "res/shaders/debug_light.fs");
 
 	// lighting infos
 	// --------------
