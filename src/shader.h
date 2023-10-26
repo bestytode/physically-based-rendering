@@ -14,12 +14,12 @@
 // as well as setting uniform variables.
 // 
 // Usage Example:
-// Shader myShader("vertexShaderPath", "fragmentShaderPath");
-// Shader myShader("vertexShaderPath", "fragmentShaderPath", "geometryShaderPath");
+// Shader shader("vertexShaderPath", "fragmentShaderPath");
+// Shader shader("vertexShaderPath", "fragmentShaderPath", "geometryShaderPath");
 // 
-// myShader.Bind();
-// myShader.SetVec3("someUniform", glm::vec3(1.0f, 0.0f, 0.0f));
-// myShader.Unbind();
+// shader.Bind();
+// shader.SetVec3("some_uniform", glm::vec3(1.0f, 0.0f, 0.0f));
+// shader.Unbind();
 // ------------------
 class Shader
 {

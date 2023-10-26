@@ -8,9 +8,9 @@ const float PI = 3.14159265359;
 
 void main()
 {		
-	// The world vector is a surface normal from the origin to WorldPos.
-    // Using this, compute incoming radiance from the environment.
-    // This radiance comes from the -Normal direction, used in the PBR shader for irradiance sampling.
+	// For cubemap rendering:
+    // WorldPos is a direction from the cube's center to the vertex.
+    // Normalizing it gives us the direction for environment sampling.
     vec3 N = normalize(WorldPos);
 
     vec3 irradiance = vec3(0.0);   
@@ -20,7 +20,7 @@ void main()
     vec3 right = normalize(cross(up, N));
     up         = normalize(cross(N, right));
        
-    float sampleDelta = 0.025; 
+    float sampleDelta = 0.025;
     float nrSamples = 0.0;
 
     // Iterate over hemisphere oriented around normal N.

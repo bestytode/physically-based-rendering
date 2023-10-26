@@ -423,6 +423,15 @@ int main()
 		ImGui::Text("Cursor position: (%.2f, %.2f)", cursor_x, cursor_y);
 		ImGui::Text("RGBA: (%d, %d, %d, %d)", pixel[0], pixel[1], pixel[2], pixel[3]);
 		ImGui::Checkbox("Enable camera movement", &enableCameraMovement);
+
+		float newSpeed = camera.GetMovementSpeed(); 
+		if (ImGui::SliderFloat("Movement Speed", &newSpeed, 0.1f, 5.0f)) 
+			camera.SetMovementSpeed(newSpeed); 
+		
+		float newSensitivity = camera.GetMouseSensitivity(); 
+		if (ImGui::SliderFloat("Mouse Sensitivity", &newSensitivity, 0.01f, 1.0f)) 
+			camera.SetMouseSensitivity(newSensitivity); 
+
 		ImGui::End();
 
 		// The second UI panal
