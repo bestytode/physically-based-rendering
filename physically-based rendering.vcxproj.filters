@@ -63,6 +63,9 @@
     <ClInclude Include="src\imgui\imstb_truetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\scene_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\imgui\imgui.cpp">
@@ -86,7 +89,7 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ibr_irradiance_conversion.cpp">
+    <ClCompile Include="src\ibl_specular.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

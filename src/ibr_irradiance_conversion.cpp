@@ -24,6 +24,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "scene_manager.h"
 
 // Callback function declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
