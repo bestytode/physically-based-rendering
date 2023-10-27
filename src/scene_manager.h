@@ -84,8 +84,8 @@ void SceneManager::InitWindow(int width, int height, const std::string& title)
 		if (!window)
 			throw std::runtime_error("failed to create window");
 
-
 		glfwMakeContextCurrent(window);
+		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback_dispatch);
 		glfwSetCursorPosCallback(window, mouse_callback_dispatch);
 		glfwSetScrollCallback(window, scroll_callback_dispatch);
