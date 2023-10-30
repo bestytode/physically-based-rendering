@@ -121,8 +121,8 @@ Cubemap convolution in IBL diffuse calculates how much light a surface receives 
 2. Using a discrete sum to approximate this integral for real-time performance. 
 
 **Notice**:
-1. In actual shader code, need to scale the sampled color value by $$\cos(\theta)$$ due to the light being weaker at larger angles and by $$\sin(\theta)$$ to account for the smaller sample areas in the higher hemisphere areas.
-2. At final stagem, Multiplying by $$\pi$$ is a essential normalization step tied to the mathematical foundation of irradiance computation. (i.e., the integral of the cosine distribution over a hemisphere is $$\pi$$.)
+1. In actual shader code, need to scale the sampled color value by $\cos(\theta)$ due to the light being weaker at larger angles and by $\sin(\theta)$ to account for the smaller sample areas in the higher hemisphere areas.
+2. At final stagem, Multiplying by $\pi$ is a essential normalization step tied to the mathematical foundation of irradiance computation. (i.e., the integral of the cosine distribution over a hemisphere is $\pi$.)
 
 ### PBR and Diffuse IBL 
 The `pbr_ibl_diffuse_textured.fs` shader is used to render spheres utilizing PBR. Instead of traditional ambient lighting, we sample from the `irradianceMap` using the normal vector. 
