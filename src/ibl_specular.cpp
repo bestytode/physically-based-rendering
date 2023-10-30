@@ -50,7 +50,7 @@ int main()
 	ImGuiIO& io = ImGui::GetIO();
 	io.FontGlobalScale = 2.0f;
 	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(scene_manager.window, true);
+	ImGui_ImplGlfw_InitForOpenGL(scene_manager.GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
 	// Basic geometry shape for later use
@@ -68,7 +68,7 @@ int main()
 	timer.stop(); // Timer stops
 
 	// Render loop
-	while (!glfwWindowShouldClose(scene_manager.window)) {
+	while (!glfwWindowShouldClose(scene_manager.GetWindow())) {
 		scene_manager.UpdateDeltaTime();
 		scene_manager.ProcessInput();
 
@@ -105,7 +105,7 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		glfwSwapBuffers(scene_manager.window);
+		glfwSwapBuffers(scene_manager.GetWindow());
 		glfwPollEvents();
 	}
 

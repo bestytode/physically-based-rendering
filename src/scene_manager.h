@@ -12,6 +12,12 @@
 #include <GLFW/glfw3.h>
 #include "camera.h"
 
+// A utility class holding window pointer & camera object
+// 
+// Example usage:
+// SceneManager scene_manager();  // by using default parameters
+// SceneManager scene_manager(1920, 1080, "hnzz", camera);
+
 class SceneManager
 {
 public:
@@ -46,12 +52,14 @@ public:
 		glfwTerminate();
 	}
 
+	// Utility functions
 	void Enable(GLenum content) { glEnable(content); }
 	void Disable(GLenum content) { glDisable(content); }
 	unsigned int LoadTexture(const std::string& path, bool isHDR = false);
-	void UpdateDeltaTime();
+	void UpdateDeltaTime(); // to calculate deltaTima each frame
 	void CheckFramebufferStatus(unsigned int fbo, const std::string& framebufferName);
 
+	// Callback functions
 	static void framebuffer_size_callback_dispatch(GLFWwindow* window, int width, int height);
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	static void mouse_callback_dispatch(GLFWwindow* window, double xposIn, double yposIn);
@@ -60,14 +68,16 @@ public:
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	void ProcessInput();
 
+	// Getter functions
+	const auto& GetWindow() const{ return this->window; }
+	const auto& GetCamera() const { return this->camera; }
 private:
 	void InitWindow(int width, int height, const std::string& title);
 
-public:
-	GLFWwindow* window = nullptr;
-	Camera camera;
 private:
 
+	GLFWwindow* window = nullptr;
+	Camera camera;
 	bool enableCameraMovement = true;
 	bool mouseButtonPressed = true;
 
