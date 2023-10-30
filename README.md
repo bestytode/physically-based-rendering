@@ -113,7 +113,7 @@ $$
    For real-time graphics, continuous integrals aren't feasible, prompting the second formula discrete approximation of the above integral.
 
 $$
-L_o(p, \phi_o, \theta_o) = k_d \frac{\pi}{n1 \cdotn2} \sum \sum L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) \, d\theta \, d\phi
+L_o(p, \phi_o, \theta_o) = k_d \frac{\pi}{n1 \cdot n2} \sum_{\phi=0}^{n1} \sum_{\theta=0}^{n2} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) \, d\theta \, d\phi
 $$
 
 **Short Summary**: 
