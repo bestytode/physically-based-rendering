@@ -26,20 +26,24 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-// Scene settings
-int SCR_WIDTH = 1920;  // Screen width
-int SCR_HEIGHT = 1080; // Screen height
-
 int main()
 {
 	Timer timer; // Timer that calculates init operation time
 	timer.start(); // Timer starts
 
-    // Camera settings
-    Camera camera(0.0f, 0.0f, 3.0f); // By default we set plane_near to 0.1f and plane_far to 100.0f
-	SceneManager scene_manager(SCR_WIDTH, SCR_HEIGHT, "hnzz", camera);
+	int SCR_WIDTH = 1920;  // Screen width
+	int SCR_HEIGHT = 1080; // Screen height
 
-	// ImGui Initialization
+    // Camera and SceneManager configs
+	// -------------------------------
+    Camera camera(0.0f, 0.0f, 3.0f); // Settings plane_near to 0.1f and plane_far to 100.0f by deault
+	SceneManager scene_manager(SCR_WIDTH, SCR_HEIGHT, "hnzz", camera); // Holding GLFWwindow* and Camera object instance with utility functions
+
+	// OpenGL global configs
+	// ---------------------
+	scene_manager.Enable(GL_DEPTH_TEST);
+
+	// ImGui global configs
 	// --------------------
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -49,20 +53,21 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(scene_manager.window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
-	// Set VAO for geometry shape for later use
-	// ----------------------------------------
+	// Basic geometry shape for later use
+	// ----------------------------------
 	yzh::Quad quad;
 	yzh::Cube cube;
 	yzh::Sphere sphere(64, 64);
 
-	// Imgui settings
-    // --------------
+	// Imgui parameters
+    // ----------------
 	bool ImGUIFirstTime = true;
 	double cursor_x, cursor_y;
 	unsigned char pixel[4];
 
 	timer.stop(); // Timer stops
 
+	// Render loop
 	while (!glfwWindowShouldClose(scene_manager.window)) {
 		scene_manager.UpdateDeltaTime();
 		scene_manager.ProcessInput();

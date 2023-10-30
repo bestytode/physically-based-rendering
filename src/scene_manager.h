@@ -46,6 +46,8 @@ public:
 		glfwTerminate();
 	}
 
+	void Enable(GLenum content) { glEnable(content); }
+	void Disable(GLenum content) { glDisable(content); }
 	unsigned int LoadTexture(const std::string& path, bool isHDR = false);
 	void UpdateDeltaTime();
 	void CheckFramebufferStatus(unsigned int fbo, const std::string& framebufferName);
