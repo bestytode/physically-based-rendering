@@ -115,9 +115,7 @@ $$
 $$
 L_o(p, \phi_o, \theta_o) = k_d \frac{\pi}{n1n2} \sum \sum L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) \, d\theta \, d\phi
 $$
-\[
-L_o(p, \phi_o, \theta_o) = k_d \frac{\pi}{n1n2} \sum \sum L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) \, d\theta \, d\phi
-\]
+
 **Short Summary**: 
 Cubemap convolution in IBL diffuse calculates how much light a surface receives from all directions. This involves:
 1. Calculating the integral of incoming light over the hemisphere for a specific direction.
