@@ -21,7 +21,7 @@ $$
 To understand the full scope of our rendering process, consider the extended rendering equation:
 
 $$
-L_o(p, \omega_o) = L_e(p, \omega_o) + \int_{\Omega} f(p, \omega_o, \omega_i) \times L_i(p, \omega_i) \times (\omega_i \cdot n) \, d\omega_i
+L_o(p, \omega_o) = L_e(p, \omega_o) + \int_{\Omega} f(p, \omega_o, \omega_i) \times L_i(p, \omega_i) \times (\omega_i \cdot n) d\omega_i
 $$
 
 ### Explanations for Rendering Equation Parameters
@@ -103,17 +103,17 @@ here are the key formular explainations:
 
 1. **Diffuse Irradiance Formula**:
    The first formula computes the **diffuse irradiance** for a given point `p` in a specific direction $({\phi_o, \theta_o})$. 
-1. It integrates the incoming light $L_i$ over the entire hemisphere around the normal at point `p`, considering the light's intensity, its angle of incidence $\cos\theta$, and the differential solid angle $\sin(\theta) , d\theta, d\phi$.
+1. It integrates the incoming light $L_i$ over the entire hemisphere around the normal at point `p`, considering the light's intensity, its angle of incidence $\cos\theta$, and the differential solid angle $\sin(\theta), d\theta, d\phi$.
 
 $$
-L_o(p, \phi_o, \theta_o) = \frac{k_d}{\pi} \int_{\phi=0}^{2\pi} \int_{\theta=0}^{\frac{\pi}{2}} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta)  d\theta \ d\phi
+L_o(p, \phi_o, \theta_o) = \frac{k_d}{\pi} \int_{\phi=0}^{2\pi} \int_{\theta=0}^{\frac{\pi}{2}} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) d\theta d\phi
 $$
 
 2. **Discrete Summation**:
    For real-time graphics, continuous integrals aren't feasible, prompting the second formula discrete approximation of the above integral.
 
 $$
-L_o(p, \phi_o, \theta_o) = k_d \frac{\pi}{n1 \cdot n2} \sum_{\phi=0}^{n1} \sum_{\theta=0}^{n2} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta)  d\theta \ d\phi
+L_o(p, \phi_o, \theta_o) = k_d \frac{\pi}{n1 \cdot n2} \sum_{\phi=0}^{n1} \sum_{\theta=0}^{n2} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta)  d\theta d\phi
 $$
 
 **Short Summary**: 
