@@ -103,18 +103,18 @@ here are the key formular explainations:
 
 1. **Diffuse Irradiance Formula**:
    The first formula computes the **diffuse irradiance** for a given point `p` in a specific direction $({\phi_o, \theta_o})$. 
-1. It integrates the incoming light $L_i$ over the entire hemisphere around the normal at point `p`, considering the light's intensity, its angle of incidence $\cos\theta$, and the differential solid angle $ \sin(\theta) , d\theta, d\phi $.
+1. It integrates the incoming light $L_i$ over the entire hemisphere around the normal at point `p`, considering the light's intensity, its angle of incidence $\cos\theta$, and the differential solid angle $\sin(\theta) , d\theta, d\phi$.
 
-   $$
-   L_o(p, \phi_o, \theta_o) = \frac{k_d}{\pi} \int_{\phi=0}^{2\pi} \int_{\theta=0}^{\frac{\pi}{2}} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) \, d\theta \, d\phi
-   $$
+$$
+L_o(p, \phi_o, \theta_o) = \frac{k_d}{\pi} \int_{\phi=0}^{2\pi} \int_{\theta=0}^{\frac{\pi}{2}} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) \, d\theta \, d\phi
+$$
 
 2. **Discrete Summation**:
    For real-time graphics, continuous integrals aren't feasible, prompting the second formula discrete approximation of the above integral.
 
-   $$
-   L_o(p, \phi_o, \theta_o) = k_d \frac{\pi}{n1n2} \sum \sum L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) \, d\theta \, d\phi
-   $$
+$$
+L_o(p, \phi_o, \theta_o) = k_d \frac{\pi}{n1n2} \sum \sum L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) \, d\theta \, d\phi
+$$
 
 **Short Summary**: 
 Cubemap convolution in IBL diffuse calculates how much light a surface receives from all directions. This involves:
