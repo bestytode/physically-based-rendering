@@ -76,7 +76,7 @@ $$
 - **( $L$ ) (Light Vector)**: The vector pointing from the surface point to the light source.
 - 
 
-## PBR with IBL in C++
+## PBR with IBL in C++ (diffuse part)
 This repository focuses on Physically-Based Rendering (PBR) using Image-Based Lighting (IBL), specifically for diffuse IBL. The main file of interest is `ibr_irradiance_conversion.cpp`, accompanied by several fragment shaders, including `equirectangular_to_cubemap.fs` and `irradiance_convolution.fs`.
 
 ### Loading HDR Texture
