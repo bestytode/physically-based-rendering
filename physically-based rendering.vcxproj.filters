@@ -89,7 +89,7 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ibl_specular.cpp">
+    <ClCompile Include="src\ibr_irradiance_conversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -170,7 +170,7 @@
     <ClInclude Include="src\timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ibl_specular.cpp" />
+    <ClCompile Include="src\ibr_irradiance_conversion.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
