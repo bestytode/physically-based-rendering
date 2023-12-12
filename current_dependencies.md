@@ -34,6 +34,7 @@ This document outlines the dependencies for a project configured in Visual Studi
   - Add Assimp's include directory to 'VC++ Directories' -> 'Include Directories'.
   - Add Assimp's library directory to 'VC++ Directories' -> 'Library Directories'.
   - Add Assimp's library file to 'Linker' -> 'Input' -> 'Additional Dependencies'.
+  - In the same directory as the final .exe file, add assimp-vc143-mt.dll.
 
 ### ImGui
 - **Description**: ImGui for creating immediate-mode graphical user interfaces.
