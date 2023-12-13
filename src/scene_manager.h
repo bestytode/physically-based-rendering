@@ -17,7 +17,6 @@
 // Example usage:
 // SceneManager scene_manager();  // by using default parameters
 // SceneManager scene_manager(1920, 1080, "hnzz", camera);
-
 class SceneManager
 {
 public:
