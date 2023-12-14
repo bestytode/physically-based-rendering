@@ -76,7 +76,6 @@ private:
 	void InitWindow(int width, int height, const std::string& title);
 
 private:
-
 	GLFWwindow* window = nullptr;
 	std::shared_ptr<Camera> camera; // unique pointer to keep the same camera object with external one
 	bool enableCameraMovement = true;

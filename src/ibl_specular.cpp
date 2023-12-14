@@ -34,6 +34,7 @@ int main()
 
 	int SCR_WIDTH = 1920;  // Screen width
 	int SCR_HEIGHT = 1080; // Screen height
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
     // Camera and SceneManager configs
 	// -------------------------------
@@ -43,6 +44,7 @@ int main()
 	// OpenGL global configs
 	// ---------------------
 	scene_manager.Enable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
 
 	// ImGui global configs
 	// --------------------
@@ -59,7 +61,7 @@ int main()
 	yzh::Quad quad;
 	yzh::Cube cube;
 	yzh::Sphere sphere(64, 64);
-	yzh::Cone cone(1.0f, 1.0f, 20);
+	yzh::Circle circle(18);
 
 	// shader configs
 	Shader shader("res/shaders/debug_light.vs", "res/shaders/debug_light.fs");
@@ -90,8 +92,9 @@ int main()
 		shader.SetMat4("projection", projection);
 		shader.SetMat4("view", view);
 		shader.SetMat4("model", model);
-		shader.SetInt("use_green_color", 1);
-		sphere.Render();
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		cube.Render();
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		// ImGui code
 		// ----------

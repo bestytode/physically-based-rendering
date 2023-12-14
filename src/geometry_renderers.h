@@ -296,100 +296,108 @@ namespace yzh {
 		unsigned int VAO = 0, VBO;
 	};
 
-	// TODO
-	// ----
-	class InstancingSphere : public GeometryShape
+	// Circle Class:
+	// Creates a 2D circle with radius 1, centered at the origin (0,0,0) on the XY plane.
+	// The circle's edge smoothness is controlled by the number of segments (numSegments).
+	// This class handles vertex positions only; normals and texture coordinates are not included.
+	class Circle : public GeometryShape
 	{
+	public:
+		Circle(int nrSegments = 36)
+			: nrSegments(nrSegments) {
+			if (this->VAO == 0) {
+				initCircle();
+			}
+		}
 
-	};
+		~Circle() override
+		{
+			if (this->VAO != 0) {
+				glDeleteVertexArrays(1, &this->VAO);
+				glDeleteBuffers(1, &this->VBO);
+			}
+		}
 
-	// TODO
-	// ----
-	class InstancingCube : public GeometryShape
-	{
+		void Render() override
+		{
+			if (this->VAO != 0) {
+				glBindVertexArray(this->VAO);
+				// Render the circle
+				glDrawArrays(GL_TRIANGLE_FAN, 0, nrSegments + 2); // +2 for the center and the duplicate first vertex at the end
+				glBindVertexArray(0);
+			}
+		}
 
-	};
+	private:
+		void initCircle()
+		{
+			std::vector<float> vertices;
+			// Center point of the circle
+			vertices.insert(vertices.end(), { 0.0f, 0.0f, 0.0f }); // Position
+			vertices.insert(vertices.end(), { 0.0f, 0.0f, 1.0f }); // Normal
+			vertices.insert(vertices.end(), { 0.5f, 0.5f });       // Texture Coord
 
-	// TODO
-	// ----
-	class InstancingQuad : public GeometryShape
-	{
+			for (int i = 0; i <= nrSegments; ++i) {
+				float angle = 2.0f * 3.14159265359f * i / nrSegments;
+				float x = cosf(angle);
+				float y = sinf(angle);
+				float u = (x + 1.0f) / 2.0f;  // Mapping x to texture coordinate
+				float v = (y + 1.0f) / 2.0f;  // Mapping y to texture coordinate
 
+				vertices.insert(vertices.end(), { x, y, 0.0f });    // Position
+				vertices.insert(vertices.end(), { 0.0f, 0.0f, 1.0f }); // Normal
+				vertices.insert(vertices.end(), { u, v });          // Texture Coord
+			}
+
+			// Set up the VAO and VBO
+			glGenVertexArrays(1, &this->VAO);
+			glGenBuffers(1, &this->VBO);
+			glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+			glBindVertexArray(this->VAO);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+		}
+
+		unsigned int VAO = 0, VBO = 0;
+		int nrSegments;
 	};
 
 	// TODO
 	// ----
 	class Cylinder : public GeometryShape
 	{
-
-
-	};
-
-	class Cone : public GeometryShape {
 	public:
-		Cone(float radius, float height, int numberOfVertices)
-			: radius(radius), height(height), numberOfVertices(numberOfVertices) {
-			this->initCone();
-		}
-
-		~Cone() override {
-			if (this->VAO != 0) {
-				glDeleteVertexArrays(1, &this->VAO);
-				glDeleteBuffers(1, &this->VBO);
-				this->VAO = 0;
-			}
-		}
-
-		void Render() override {
-			if (this->VAO != 0) {
-				glBindVertexArray(this->VAO);
-				// Draw base
-				glDrawArrays(GL_TRIANGLE_FAN, 0, this->numberOfVertices + 2);
-				// Draw sides
-				glDrawArrays(GL_TRIANGLE_FAN, this->numberOfVertices + 2, this->numberOfVertices + 2);
-				glBindVertexArray(0);
-			}
-		}
+		Cylinder();
+		~Cylinder(); 
+		void Render(); 
 
 	private:
-		void initCone() {
-			std::vector<float> vertices;
+		void initCylinder();
 
-			// Generate base vertices
-			for (int i = 0; i <= numberOfVertices; ++i) {
-				float angle = 2.0f * 3.14159265359f * i / numberOfVertices;
-				vertices.push_back(radius * std::cos(angle)); // X
-				vertices.push_back(radius * std::sin(angle)); // Y
-				vertices.push_back(0.0f);                     // Z
-			}
+	private:
+		unsigned int VAO = 0, VBO;
+	};
 
-			// Center of the base
-			vertices.push_back(0.0f); // X
-			vertices.push_back(0.0f); // Y
-			vertices.push_back(0.0f); // Z
+	// TODO:
+	// ----
+	class Cone : public GeometryShape {
+	public:
+		Cone();
+		~Cone();
+		void Render();
 
-			// Apex of the cone
-			vertices.push_back(0.0f);  // X
-			vertices.push_back(0.0f);  // Y
-			vertices.push_back(height); // Z
+	private:
+		void initCone();
 
-			// Generate OpenGL buffers
-			glGenVertexArrays(1, &this->VAO);
-			glGenBuffers(1, &this->VBO);
-			glBindVertexArray(this->VAO);
-			glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-			// Position attribute
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-			glBindVertexArray(0);
-		}
-
-		float radius;
-		float height;
-		int numberOfVertices;
+	private:
 		unsigned int VAO = 0, VBO;
 	};
 };

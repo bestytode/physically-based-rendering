@@ -36,6 +36,12 @@ public:
 		UpdateCameraVectors();
 	}
 
+    // Rule of Five
+    Camera(const Camera&) = default;            
+    Camera& operator=(const Camera&) = default; 
+    Camera(Camera&&) = default;                 
+    Camera& operator=(Camera&&) = default;      
+
     // processes input received from any keyboard-like input system. 
     // Accepts input parameter in the form of camera defined ENUM 
     void ProcessKeyboard(Direction _direction, float deltaTime);
