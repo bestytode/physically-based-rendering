@@ -324,4 +324,72 @@ namespace yzh {
 
 
 	};
+
+	class Cone : public GeometryShape {
+	public:
+		Cone(float radius, float height, int numberOfVertices)
+			: radius(radius), height(height), numberOfVertices(numberOfVertices) {
+			this->initCone();
+		}
+
+		~Cone() override {
+			if (this->VAO != 0) {
+				glDeleteVertexArrays(1, &this->VAO);
+				glDeleteBuffers(1, &this->VBO);
+				this->VAO = 0;
+			}
+		}
+
+		void Render() override {
+			if (this->VAO != 0) {
+				glBindVertexArray(this->VAO);
+				// Draw base
+				glDrawArrays(GL_TRIANGLE_FAN, 0, this->numberOfVertices + 2);
+				// Draw sides
+				glDrawArrays(GL_TRIANGLE_FAN, this->numberOfVertices + 2, this->numberOfVertices + 2);
+				glBindVertexArray(0);
+			}
+		}
+
+	private:
+		void initCone() {
+			std::vector<float> vertices;
+
+			// Generate base vertices
+			for (int i = 0; i <= numberOfVertices; ++i) {
+				float angle = 2.0f * 3.14159265359f * i / numberOfVertices;
+				vertices.push_back(radius * std::cos(angle)); // X
+				vertices.push_back(radius * std::sin(angle)); // Y
+				vertices.push_back(0.0f);                     // Z
+			}
+
+			// Center of the base
+			vertices.push_back(0.0f); // X
+			vertices.push_back(0.0f); // Y
+			vertices.push_back(0.0f); // Z
+
+			// Apex of the cone
+			vertices.push_back(0.0f);  // X
+			vertices.push_back(0.0f);  // Y
+			vertices.push_back(height); // Z
+
+			// Generate OpenGL buffers
+			glGenVertexArrays(1, &this->VAO);
+			glGenBuffers(1, &this->VBO);
+			glBindVertexArray(this->VAO);
+			glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+			// Position attribute
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+			glBindVertexArray(0);
+		}
+
+		float radius;
+		float height;
+		int numberOfVertices;
+		unsigned int VAO = 0, VBO;
+	};
 };

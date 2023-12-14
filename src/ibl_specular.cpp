@@ -58,6 +58,10 @@ int main()
 	yzh::Quad quad;
 	yzh::Cube cube;
 	yzh::Sphere sphere(64, 64);
+	yzh::Cone cone(1.0f, 1.0f, 20);
+
+	// shader configs
+	Shader shader("res/shaders/debug_light.vs", "res/shaders/debug_light.fs");
 
 	// Imgui parameters
     // ----------------
@@ -75,6 +79,17 @@ int main()
 		// Render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// test rendering cones
+		shader.Bind();
+		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::scale(model, glm::vec3(0.5f));
+		shader.SetMat4("projection", projection);
+		shader.SetMat4("view", view);
+		shader.SetMat4("model", model);
+		sphere.Render();
 
 		// ImGui code
 		// ----------
