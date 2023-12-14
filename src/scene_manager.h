@@ -7,6 +7,8 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
@@ -27,16 +29,16 @@ public:
 
 public:
 	SceneManager(int width = 1920, int height = 1080, const std::string& title = "hnzz",
-		const glm::vec3& position = glm::vec3(0.0f, 0.0f, 3.0f))
-		: camera(position.x, position.y, position.z),
+		glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f))
+		: camera(std::make_shared<Camera>(position)),
 		SCR_WIDTH(width), SCR_HEIGHT(height),
 		lastX((float)width / 2.0f), lastY((float)height / 2.0f),
 		deltaTime(0.0f), lastFrame(0.0f) {
 		InitWindow(SCR_WIDTH, SCR_HEIGHT, title);
 	}
 
-	SceneManager(int width, int height, const std::string& title, const Camera& camera)
-		:camera(camera), SCR_WIDTH(width), SCR_HEIGHT(height), 
+	SceneManager(int width, int height, const std::string& title, std::shared_ptr<Camera> camera_ptr)
+		:camera(camera_ptr), SCR_WIDTH(width), SCR_HEIGHT(height), 
 		lastX((float)width / 2.0f), lastY((float)height / 2.0f),
 		deltaTime(0.0f), lastFrame(0.0f) {
 		InitWindow(SCR_WIDTH, SCR_HEIGHT, title);
@@ -76,7 +78,7 @@ private:
 private:
 
 	GLFWwindow* window = nullptr;
-	Camera camera;
+	std::shared_ptr<Camera> camera; // unique pointer to keep the same camera object with external one
 	bool enableCameraMovement = true;
 	bool mouseButtonPressed = true;
 
@@ -112,7 +114,7 @@ void SceneManager::InitWindow(int width, int height, const std::string& title)
 }
 
 void SceneManager::UpdateDeltaTime() {
-	float currentFrame = glfwGetTime();
+	float currentFrame = (float)glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 }
@@ -161,7 +163,7 @@ void SceneManager::mouse_callback(GLFWwindow* window, double xposIn, double ypos
 		lastX = xpos;
 		lastY = ypos;
 
-		camera.ProcessMouseMovement(xoffset, yoffset);
+		camera->ProcessMouseMovement(xoffset, yoffset);
 	}
 	else
 		mouseButtonPressed = true;
@@ -176,7 +178,7 @@ void SceneManager::scroll_callback_dispatch(GLFWwindow* window, double xoffset, 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 void SceneManager::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.ProcessMouseScroll(static_cast<float>(yoffset));
+	camera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 // Process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -186,13 +188,13 @@ void SceneManager::ProcessInput()
 		glfwSetWindowShouldClose(window, true);
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
+		camera->ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
+		camera->ProcessKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
+		camera->ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+		camera->ProcessKeyboard(RIGHT, deltaTime);
 }
 
 // Utility function for loading a 2D texture from file

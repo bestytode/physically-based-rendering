@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <memory>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -36,9 +37,9 @@ int main()
 
     // Camera and SceneManager configs
 	// -------------------------------
-    Camera camera(0.0f, 0.0f, 3.0f); // Settings plane_near to 0.1f and plane_far to 100.0f by deault
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>(0.0f, 0.0f, 3.0f); // Settings plane_near to 0.1f and plane_far to 100.0f by deault
 	SceneManager scene_manager(SCR_WIDTH, SCR_HEIGHT, "hnzz", camera); // Holding GLFWwindow* and Camera object instance with utility functions
-
+	
 	// OpenGL global configs
 	// ---------------------
 	scene_manager.Enable(GL_DEPTH_TEST);
@@ -66,8 +67,8 @@ int main()
 	// Imgui parameters
     // ----------------
 	bool ImGUIFirstTime = true;
-	double cursor_x, cursor_y;
-	unsigned char pixel[4];
+	double cursor_x = 0, cursor_y = 0;
+	unsigned char pixel[4]{};
 
 	timer.stop(); // Timer stops
 
@@ -82,13 +83,14 @@ int main()
 
 		// test rendering cones
 		shader.Bind();
-		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera->GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::scale(model, glm::vec3(0.5f));
 		shader.SetMat4("projection", projection);
 		shader.SetMat4("view", view);
 		shader.SetMat4("model", model);
+		shader.SetInt("use_green_color", 1);
 		sphere.Render();
 
 		// ImGui code
