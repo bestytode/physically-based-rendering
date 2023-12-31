@@ -122,7 +122,7 @@ namespace yzh {
 		}
 
 	private:
-		unsigned int VAO = 0, VBO;
+		unsigned int VAO = 0, VBO = 0;
 	};
 
 	// This class provides a sphere in OpenGL with a radius of 2.0 units.
@@ -230,7 +230,7 @@ namespace yzh {
 		const unsigned int GetVAO() const { return VAO; }
 
 	private:
-		unsigned int VAO = 0, VBO, IBO;
+		unsigned int VAO = 0, VBO = 0, IBO = 0;
 	};
 
 	// This class provides a 2D quad in OpenGL with dimensions of 2 * 2 units.
@@ -293,7 +293,7 @@ namespace yzh {
 		const unsigned int GetVAO() const { return this->VAO; }
 
 	private:
-		unsigned int VAO = 0, VBO;
+		unsigned int VAO = 0, VBO = 0;
 	};
 
 	// Circle Class:
@@ -370,20 +370,18 @@ namespace yzh {
 		int nrSegments;
 	};
 
-	// TODO
-	// ----
 	class Cylinder : public GeometryShape
 	{
 	public:
 		Cylinder();
-		~Cylinder(); 
-		void Render(); 
+		~Cylinder();
+		void Render();
 
 	private:
 		void initCylinder();
 
 	private:
-		unsigned int VAO = 0, VBO;
+		unsigned int VAO = 0, VBO = 0;
 	};
 
 	// TODO:
@@ -398,6 +396,6 @@ namespace yzh {
 		void initCone();
 
 	private:
-		unsigned int VAO = 0, VBO;
+		unsigned int VAO = 0, VBO = 0;
 	};
 };

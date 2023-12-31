@@ -61,16 +61,17 @@ int main()
 	yzh::Quad quad;
 	yzh::Cube cube;
 	yzh::Sphere sphere(64, 64);
-	yzh::Circle circle(18);
 
 	// shader configs
 	Shader shader("res/shaders/debug_light.vs", "res/shaders/debug_light.fs");
 
 	// Imgui parameters
     // ----------------
-	bool ImGUIFirstTime = true;
-	double cursor_x = 0, cursor_y = 0;
-	unsigned char pixel[4]{};
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	float windowWidth = 400.0f, windowHeight = 600.0f;
+	float windowPosX = 0.0f, windowPosY = 0.0f;
+	float fontSizeScale = 0.7f;
 
 	timer.stop(); // Timer stops
 
@@ -93,7 +94,7 @@ int main()
 		shader.SetMat4("view", view);
 		shader.SetMat4("model", model);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		cube.Render();
+		sphere.Render();
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		// ImGui code
@@ -103,21 +104,40 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// The first UI panal
-		if (ImGUIFirstTime) {
-			ImGui::SetNextWindowSize(ImVec2(500, 250));
-			ImGui::SetNextWindowPos(ImVec2(50, 50));
-		}
-		ImGui::Begin("hnzz");
-		ImGui::End();
+		ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_Always); 
+		ImGui::SetNextWindowPos(ImVec2(windowPosX, windowPosY), ImGuiCond_Always);
 
-		// The second UI panal
-		if (ImGUIFirstTime) {
-			ImGui::SetNextWindowSize(ImVec2(500, 250));
-			ImGui::SetNextWindowPos(ImVec2(50, 350));
-			ImGUIFirstTime = false;
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.Colors[ImGuiCol_WindowBg].w = 0.7f;
+
+		// Start the main window
+		ImGui::Begin("Infos");
+		ImGui::PushFont(ImGui::GetFont()); // Get default font
+		ImGui::GetFont()->Scale = fontSizeScale;    // Scale the font size
+
+		ImGui::Text("Rendering: TODO");
+		ImGui::Text("Profiling: TODO");
+
+		// Application info section
+		if (ImGui::CollapsingHeader("Application Info", ImGuiTreeNodeFlags_DefaultOpen)) {
+			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + windowWidth); // Wrap text at the panel width
+			ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));// Display OpenGL version
+			ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));// Display renderer information
+			ImGui::Text("Vendor: %s", glGetString(GL_VENDOR));// Display vendor information
+			ImGui::Text("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));// Display GLSL version
+			ImGui::Text("Framerate: %.1f FPS", io.Framerate);// Display framerate information
+			ImGui::PopTextWrapPos();
 		}
-		ImGui::Begin("PBR");
+
+		// About section
+		if (ImGui::CollapsingHeader("About", ImGuiTreeNodeFlags_DefaultOpen)) {
+			ImGui::Text("Author: Zhenhuan Yu");
+			ImGui::Text("Email: yuzhenhuan99999@gmail.com");
+			// Additional information about the engine or contact details can go here
+		}
+
+		// Revert to original font scale for other UI elements
+		ImGui::PopFont();
 		ImGui::End();
 
 		// ImGui Rendering
@@ -133,6 +153,4 @@ int main()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-
-	return 0;
 }
