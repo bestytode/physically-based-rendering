@@ -16,9 +16,9 @@
 #include <GLFW/glfw3.h>
 
 #include "camera.h"
-#include "shader.h"
 #include "geometry_renderers.h"
 #include "model.h"
+#include "shader.h"
 #include "timer.h"
 
 #include "imgui/imgui.h"

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <string>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
+#include <string>
 #include <unordered_set>
 
-#include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 // The Shader class encapsulates OpenGL shader programs.
 // It provides functionalities for creating, compiling, and linking shaders,

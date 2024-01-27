@@ -10,18 +10,18 @@
 // Date:
 
 #include <iostream>
-#include <stdexcept>
 #include <memory>
+#include <stdexcept>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "camera.h"
-#include "shader.h"
 #include "geometry_renderers.h"
 #include "model.h"
-#include "timer.h"
 #include "scene_manager.h"
+#include "shader.h"
+#include "timer.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -32,9 +32,9 @@ int main()
 	Timer timer; // Timer that calculates init operation time
 	timer.start(); // Timer starts
 
-	int SCR_WIDTH = 1920;  // Screen width
-	int SCR_HEIGHT = 1080; // Screen height
-	glfwWindowHint(GLFW_SAMPLES, 4);
+	const int SCR_WIDTH = 1920;  // Screen width
+	const int SCR_HEIGHT = 1080; // Screen height
+	glfwWindowHint(GLFW_SAMPLES, 4); // multisampling
 
     // Camera and SceneManager configs
 	// -------------------------------
