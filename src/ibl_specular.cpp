@@ -34,17 +34,24 @@ int main()
 
 	const int SCR_WIDTH = 1920;  // Screen width
 	const int SCR_HEIGHT = 1080; // Screen height
-	glfwWindowHint(GLFW_SAMPLES, 4); // multisampling
 
-    // Camera and SceneManager configs
-	// -------------------------------
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>(0.0f, 0.0f, 3.0f); // Settings plane_near to 0.1f and plane_far to 100.0f by deault
-	SceneManager scene_manager(SCR_WIDTH, SCR_HEIGHT, "hnzz", camera); // Holding GLFWwindow* and Camera object instance with utility functions
-	
+    // shared pointer holding camera object. plane_near to 0.1f and plane_far to 100.0f by deault.
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>(0.0f, 0.0f, 3.0f); 
+
+	// Global scene manager holding window and camera object instance with utility functions.
+	// Notice: glfw and glew init in SceneManager constructor.
+	// -------------------------------------------------------
+	SceneManager scene_manager(SCR_WIDTH, SCR_HEIGHT, "hnzz", camera); 
+
 	// OpenGL global configs
 	// ---------------------
 	scene_manager.Enable(GL_DEPTH_TEST);
-	glEnable(GL_MULTISAMPLE);
+
+	scene_manager.Enable(GL_MULTISAMPLE);
+	glfwWindowHint(GLFW_SAMPLES, 4); 
+
+	scene_manager.Enable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// ImGui global configs
 	// --------------------
@@ -65,11 +72,9 @@ int main()
 	// shader configs
 	Shader shader("res/shaders/debug_light.vs", "res/shaders/debug_light.fs");
 
-	// Imgui parameters
+	// Imgui configs
     // ----------------
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	float windowWidth = 400.0f, windowHeight = 600.0f;
+	float windowWidth = 480.0f, windowHeight = 1080.0f;
 	float windowPosX = 0.0f, windowPosY = 0.0f;
 	float fontSizeScale = 0.7f;
 
@@ -109,14 +114,24 @@ int main()
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.Colors[ImGuiCol_WindowBg].w = 0.7f;
+		style.WindowRounding = 5.0f; // Adjust this value to increase or decrease the rounding
+		style.FrameRounding = 5.0f; // For example, for buttons and other framed elements
+		style.ChildRounding = 5.0f; // For child windows
+		style.PopupRounding = 5.0f; // For pop-up windows
+
+		// Adjust color for window background
+		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.7f); // Dark background with some transparency
+		style.Colors[ImGuiCol_Header] = ImVec4(0.0f, 0.0f, 0.5f, 0.85f); // Blue color for headers
+		style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.2f, 0.2f, 0.5f, 0.8f); // Slightly lighter blue when hovered
+		style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.3f, 0.3f, 0.5f, 0.9f); // Even lighter blue when active or clicked
 
 		// Start the main window
 		ImGui::Begin("Infos");
 		ImGui::PushFont(ImGui::GetFont()); // Get default font
 		ImGui::GetFont()->Scale = fontSizeScale;    // Scale the font size
 
-		ImGui::Text("Rendering: TODO");
-		ImGui::Text("Profiling: TODO");
+		ImGui::Text("Rendering: TODO"); // TODO
+		ImGui::Text("Profiling: TODO"); // TODO
 
 		// Application info section
 		if (ImGui::CollapsingHeader("Application Info", ImGuiTreeNodeFlags_DefaultOpen)) {

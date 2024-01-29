@@ -19,6 +19,8 @@
 // Example usage:
 // SceneManager scene_manager();  // by using default parameters
 // SceneManager scene_manager(1920, 1080, "hnzz", camera);
+// 
+// Utility function usages: load texture, enable/disable gl content, etc.
 class SceneManager
 {
 public:
@@ -77,7 +79,7 @@ private:
 
 private:
 	GLFWwindow* window = nullptr;
-	std::shared_ptr<Camera> camera; // unique pointer to keep the same camera object with external one
+	std::shared_ptr<Camera> camera; // camera pointer to keep the same camera object with external one
 	bool enableCameraMovement = true;
 	bool mouseButtonPressed = true;
 
