@@ -117,6 +117,7 @@ int main()
 	unsigned int metallic = LoadTexture("res/textures/pbr/rusted_iron/metallic.png");
 	unsigned int roughness = LoadTexture("res/textures/pbr/rusted_iron/roughness.png");
 	unsigned int ao = LoadTexture("res/textures/pbr/rusted_iron/ao.png");
+
 	// Scaling factors (control them in UI panal)
 	float metallicScale = 1.0f; // Scale factor for metallic
 	float roughnessScale = 1.0f; // Scale factor for roughness
