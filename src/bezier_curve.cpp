@@ -16,6 +16,10 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+// extra helper callback functions specifically for bezier curve
+void ProcessInput(GLFWwindow * window, float deltaTime);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
 glm::vec2 calculateBezierPoint(float t, const glm::vec2& p0, const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3) {
 	float u = 1 - t;
 	float tt = t * t;
@@ -66,6 +70,8 @@ int main()
 	scene_manager.Enable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	// extre for this chapter
+	glfwSetMouseButtonCallback(scene_manager.GetWindow(), mouse_button_callback);
 
 	unsigned int VAO, VBO;
 	glGenVertexArrays(1, &VAO);
@@ -102,11 +108,11 @@ int main()
 
 	timer.stop(); // Timer stops
 
-
 	// Render loop
 	while (!glfwWindowShouldClose(scene_manager.GetWindow())) {
 		scene_manager.UpdateDeltaTime();
 		scene_manager.ProcessInput();
+		ProcessInput(scene_manager.GetWindow(),scene_manager.GetDeltaTime());
 
 		// Render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -192,4 +198,19 @@ int main()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+}
+
+// An extra helper process input function for this chapter( we have default one in scene_manager.h)
+void ProcessInput(GLFWwindow* window, float deltaTime)
+{
+	if (glfwGetKey(window, GLFW_KEY_D)) {
+		std::cout << "sucess!\n";
+	}
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) 
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		std::cout << "Left mouse button pressed." << std::endl;
+	}
 }

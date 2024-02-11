@@ -74,6 +74,7 @@ public:
 	// Getter functions
 	const auto& GetWindow() const{ return this->window; }
 	const auto& GetCamera() const { return this->camera; }
+	const auto& GetDeltaTime() const { return this->deltaTime; }
 private:
 	void InitWindow(int width, int height, const std::string& title);
 
