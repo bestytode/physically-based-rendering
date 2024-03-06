@@ -100,12 +100,12 @@ int main()
 
 	// Shader(s) build & compile
 	// -------------------------
-	Shader pbr_ibl_diffuse_textured("res/shaders/pbr_ibl.vs", "res/shaders/pbr_ibl_diffuse_textured.fs"); 
+	Shader pbr_ibl_diffuse_textured("res/shaders/pbr_ibl.vs", "res/shaders/pbr_ibl_diffuse_textured.fs"); // used for final rendering
 	Shader pbr_ibl_diffuse("res/shaders/pbr_ibl.vs", "res/shaders/pbr_ibl_diffuse.fs");
-	Shader equirectangular_to_cubemap_shader("res/shaders/cubemap.vs", "res/shaders/equirectangular_to_cubemap.fs");
-	Shader irradiance_shader("res/shaders/cubemap.vs", "res/shaders/irradiance_convolution.fs");
-	Shader background_shader("res/shaders/background.vs", "res/shaders/background.fs");
-	Shader debug_light_shader("res/shaders/debug_light.vs", "res/shaders/debug_light.fs");
+	Shader equirectangular_to_cubemap_shader("res/shaders/cubemap.vs", "res/shaders/equirectangular_to_cubemap.fs"); // used for converting to cubemap
+	Shader irradiance_shader("res/shaders/cubemap.vs", "res/shaders/irradiance_convolution.fs"); // used for generating irradiance map
+	Shader background_shader("res/shaders/background.vs", "res/shaders/background.fs"); // used for rendering background
+	Shader debug_light_shader("res/shaders/debug_light.vs", "res/shaders/debug_light.fs"); // used for rendering lighting sources
 
 	background_shader.Bind();
 	background_shader.SetInt("environmentMap", 0);

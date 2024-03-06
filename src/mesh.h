@@ -38,6 +38,7 @@ public:
 	Mesh(Mesh&& other) noexcept;  // Move constructor
 	Mesh& operator=(Mesh&& other) noexcept;  // Move assignment operator
 
+	// Notice:
 	// Deleted Copy Semantics
 	// Prevent copying as this class manages OpenGL resources
 	Mesh(const Mesh&) = delete;
@@ -111,8 +112,8 @@ Mesh::Mesh(Mesh&& other) noexcept
 // Move assignment operator
 Mesh& Mesh::operator=(Mesh&& other) noexcept
 {
-	if (this != &other)
-	{
+	// prevent duplication
+	if (this != &other) {
 		// Release any resources held by *this
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
@@ -161,6 +162,7 @@ void Mesh::Render(Shader& shader, const std::vector<std::string>& textureTypesTo
 		else if (name == "texture_height")
 			number = std::to_string(heightNr++);
 
+		// can change this line based on the specific shader code
 		shader.SetInt((name + number).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
