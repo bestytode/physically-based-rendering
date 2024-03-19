@@ -9,24 +9,25 @@
 
 struct Vertex
 {
+	// keep the order align with attribute pointer opengl
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec2 texCoords;
+
 	glm::vec3 Tangent;
 	glm::vec3 Bitangent;
 };
 
 struct Texture
 {
-	std::string type;
-	unsigned int id;
-	std::string path;
+	std::string type; // e.g., texture_diffuse, texture_specular
+	unsigned int id;  // the texture id holding by opengl
+	std::string path; // file path of this texture
 };
 
 class Mesh
 {
 public:
-	// Constructors and Destructor
 	Mesh() = delete;  // Deleted default constructor
 	Mesh(const std::vector<Vertex>& vertices,
 		const std::vector<unsigned int>& indices,
@@ -38,7 +39,6 @@ public:
 	Mesh(Mesh&& other) noexcept;  // Move constructor
 	Mesh& operator=(Mesh&& other) noexcept;  // Move assignment operator
 
-	// Notice:
 	// Deleted Copy Semantics
 	// Prevent copying as this class manages OpenGL resources
 	Mesh(const Mesh&) = delete;
@@ -69,10 +69,9 @@ public:
 	std::vector<Texture> textures;
 
 private:
-	// Private Methods
 	void SetupMesh();  // Initialize OpenGL objects
 
-	// Private Members
+private:
 	unsigned int VAO, VBO, IBO;
 	bool hasTangentAndBitangent = false;
 };

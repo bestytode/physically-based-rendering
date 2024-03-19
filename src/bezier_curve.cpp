@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
-#include <stdexcept>
 #include <random>
+#include <stdexcept>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
