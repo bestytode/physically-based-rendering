@@ -71,20 +71,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\CG\PBR\physically-based rendering\dependencies\GLFW;E:\CG\PBR\physically-based rendering\dependencies\glm-master;E:\CG\PBR\physically-based rendering\dependencies\GLEW\include;E:\CG\PBR\physically-based rendering\dependencies\Assimp\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\CG\PBR\physically-based rendering\dependencies\Assimp\lib\x64;E:\CG\PBR\physically-based rendering\dependencies\glm-master;E:\CG\PBR\physically-based rendering\dependencies\GLFW\lib-vc2022;E:\CG\PBR\physically-based rendering\dependencies\GLEW\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\dependencies\GLFW;.\dependencies\glm-master;.\dependencies\GLEW\include;.\dependencies\Assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>.\dependencies\Assimp\lib\x64;.\dependencies\GLFW\lib-vc2022;.\dependencies\GLEW\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>E:\CG\PBR\physically-based rendering\dependencies\GLFW;E:\CG\PBR\physically-based rendering\dependencies\glm-master;E:\CG\PBR\physically-based rendering\dependencies\GLEW\include;E:\CG\PBR\physically-based rendering\dependencies\Assimp\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\CG\PBR\physically-based rendering\dependencies\Assimp\lib\x64;E:\CG\PBR\physically-based rendering\dependencies\glm-master;E:\CG\PBR\physically-based rendering\dependencies\GLFW\lib-vc2022;E:\CG\PBR\physically-based rendering\dependencies\GLEW\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\dependencies\GLFW;.\dependencies\glm-master;.\dependencies\GLEW\include;.\dependencies\Assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>.\dependencies\Assimp\lib\x64;.\dependencies\GLFW\lib-vc2022;.\dependencies\GLEW\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\CG\PBR\physically-based rendering\dependencies\GLFW;E:\CG\PBR\physically-based rendering\dependencies\glm-master;E:\CG\PBR\physically-based rendering\dependencies\GLEW\include;E:\CG\PBR\physically-based rendering\dependencies\Assimp\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\CG\PBR\physically-based rendering\dependencies\Assimp\lib\x64;E:\CG\PBR\physically-based rendering\dependencies\glm-master;E:\CG\PBR\physically-based rendering\dependencies\GLFW\lib-vc2022;E:\CG\PBR\physically-based rendering\dependencies\GLEW\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\dependencies\GLFW;.\dependencies\glm-master;.\dependencies\GLEW\include;.\dependencies\Assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>.\dependencies\Assimp\lib\x64;.\dependencies\GLFW\lib-vc2022;.\dependencies\GLEW\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>E:\CG\PBR\physically-based rendering\dependencies\GLFW;E:\CG\PBR\physically-based rendering\dependencies\glm-master;E:\CG\PBR\physically-based rendering\dependencies\GLEW\include;E:\CG\PBR\physically-based rendering\dependencies\Assimp\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\CG\PBR\physically-based rendering\dependencies\Assimp\lib\x64;E:\CG\PBR\physically-based rendering\dependencies\glm-master;E:\CG\PBR\physically-based rendering\dependencies\GLFW\lib-vc2022;E:\CG\PBR\physically-based rendering\dependencies\GLEW\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\dependencies\GLFW;.\dependencies\glm-master;.\dependencies\GLEW\include;.\dependencies\Assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>.\dependencies\Assimp\lib\x64;.\dependencies\GLFW\lib-vc2022;.\dependencies\GLEW\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -170,7 +170,7 @@
     <ClInclude Include="src\timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\bezier_curve.cpp" />
+    <ClCompile Include="src\ibr_irradiance_conversion.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
