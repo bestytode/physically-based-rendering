@@ -1,3 +1,6 @@
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif 
 #include <iostream>
 #include <memory>
 #include <random>
@@ -16,6 +19,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+
 
 glm::vec3 calculateBezierPoint(float t, const std::vector<glm::vec3>& controlPoints) 
 {

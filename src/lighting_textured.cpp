@@ -7,6 +7,9 @@
 // 
 // Author: Yu
 // Date 2023/10/18
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif 
 
 #include <iostream>
 #include <stdexcept>
@@ -94,7 +97,7 @@ int main()
 	yzh::Sphere sphere(64, 64);
 
 	// build and compile shader(s)
-	Shader shader("res/shaders/pbr_ibl.vs", "res/shaders/pbr_lighting_textured.fs");
+	Shader shader("res/shaders/pbr_ibl.vert", "res/shaders/pbr_lighting_textured.frag");
 	Shader shaderLight("res/shaders/debug_light.vs", "res/shaders/debug_light.fs");
 
 	// lighting infos

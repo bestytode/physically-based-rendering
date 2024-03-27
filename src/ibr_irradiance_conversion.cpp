@@ -9,6 +9,11 @@
 // Author: Yu
 // Date 2023/10/24
 
+// static linking for glew lib
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif 
+
 #include <iostream>
 #include <stdexcept>
 

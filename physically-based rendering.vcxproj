@@ -170,7 +170,6 @@
     <ClInclude Include="src\timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ibr_irradiance_conversion.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
@@ -178,6 +177,7 @@
     <ClCompile Include="src\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\lighting_textured.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\models\backpack\ao.jpg" />
@@ -232,10 +232,10 @@
     <None Include="res\shaders\equirectangular_to_cubemap.fs" />
     <None Include="res\shaders\irradiance_convolution.fs" />
     <None Include="res\shaders\pbr_ibl_diffuse_textured.fs" />
-    <None Include="res\shaders\pbr_ibl.vs" />
+    <None Include="res\shaders\pbr_ibl.vert" />
     <None Include="res\shaders\debug_light.fs" />
     <None Include="res\shaders\debug_light.vs" />
-    <None Include="res\shaders\pbr_lighting_textured.fs" />
+    <None Include="res\shaders\pbr_lighting_textured.frag" />
     <None Include="res\shaders\pbr_ibl_diffuse.fs" />
     <None Include="res\textures\hdr\newport_loft.hdr" />
   </ItemGroup>

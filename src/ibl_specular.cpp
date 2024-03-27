@@ -8,6 +8,9 @@
 // 
 // Author: Yu
 // Date:
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif 
 
 #include <iostream>
 #include <memory>
